@@ -20,7 +20,7 @@ This code is executed in X-fold cross-validation (mandatory!). First, you have t
 <img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/strucuture_bps_datasets.png" width="500">
 
 ### Step-2
-Place a copy of this code in _"C:/Users/[username]/Generate-Partitions-Kohonen"_ or _"/home/username/Generate-Partitions-Kohonen_. Our files are configured to obtain the paths of the folders from the root. You can change this in the code if you want.
+Place a copy of this code in _"C:/Users/[username]/Generate-Partitions-Kohonen"_ or _"/home/username/Generate-Partitions-Kohonen_. Our files are configured to obtain the paths of the folders from the root project. You can change this in the code if you want.
 
 ### Step-3
 A file called *datasets-hpmlk.csv* must be in the root project folder. This file is used to read information about the datasets and they are used in the code. All 74 datasets available in cometa (https://cometa.ujaen.es/) are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
