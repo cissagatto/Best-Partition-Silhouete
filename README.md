@@ -44,10 +44,23 @@ NOTE: Please, pay attention to the *datasets-hpmlk.csv* names and the names in t
 <img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/structure_projet_bps.png" width="500">
 
 ## Software Requirements
-This code was develop in *RStudio Version 1.4.1106 © 2009-2021 RStudio, PBC "Tiger Daylily" (2389bc24, 2021-02-11) for Ubuntu Bionic Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36*. The R Language version was: *R version 4.1.0 (2021-05-18) -- "Camp Pontanezen" Copyright (C) 2021 The R Foundation for Statistical Computing Platform: x86_64-pc-linux-gnu (64-bit)*. Please make sure all the dependencies are installed (verify libraries.R). This code does not provide any installation of the packages.
+This code was develop in *RStudio Version 1.4.1106 © 2009-2021 RStudio, PBC "Tiger Daylily" (2389bc24, 2021-02-11) for Ubuntu Bionic Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36*. The R Language version was: *R version 4.1.0 (2021-05-18) -- "Camp Pontanezen" Copyright (C) 2021 The R Foundation for Statistical Computing Platform: x86_64-pc-linux-gnu (64-bit)*. 
+
+**Please make sure all the dependencies are installed (verify libraries.R). This code does not provide any installation of the packages.**
 
 ## Hardware Requirements
 This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line (_number_cores_). If *number_cores = 1* the code will run sequentially. In our experiments, we used ten cores. For reproducibility, we recommend that you also use ten cores.
+
+This code was tested with the birds dataset in the following machine:
+
+System:
+  Host: bionote | Kernel: 5.8.0-53-generic | x86_64 bits: 64 | Desktop: Gnome 3.36.7 | Distro: Ubuntu 20.04.2 LTS (Focal Fossa) 
+  
+CPU:
+  Topology: 6-Core | model: Intel Core i7-10750H | bits: 64 | type: MT MCP | L2 cache: 12.0 MiB | Speed: 800 MHz | min/max: 800/5000 MHz 
+  Core speeds (MHz): | 1: 800 | 2: 800 | 3: 800 | 4: 800 | 5: 800 | 6: 800 | 7: 800 | 8: 800 | 9: 800 | 10: 800 | 11: 800 | 12: 800 |
+  
+_Then the experiment was executed in a cluster at UFSCar._
 
 ## Results
 The results stored in the folder _OUTPUT_ it will be used in the next phase: Test-Best-Partition-Clus, Test-Best-Partition-ECC, etc. The result for a dataset must be put in the folder _BESTPARTITIONS_ in the code https://github.com/cissagatto/Test-Best-Partition-Clus.
