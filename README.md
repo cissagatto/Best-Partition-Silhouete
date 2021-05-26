@@ -1,6 +1,6 @@
 # Select the best hybrid partition with silhouete
 
-This code is part of my PhD research at PPG-CC/DC/UFSCar. The aim is generate hybrid partitions for multilabel classification using Kohonen to modeling the label correlations, and HClust to partitioning the label space accordingly with the modeled label correlations.
+This code is part of my PhD research at PPG-CC/DC/UFSCar. The aim is select the best hybrid partition for multilabel classification.
 
 The figure bellow shows the fluxogram for this code:
 
