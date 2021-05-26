@@ -31,16 +31,14 @@ cat("\n#########################################################################
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
-shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  shm = 1
-  FolderRoot = paste("/home/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/Best-Partition-Silhouete", sep="")
 } else {
-  shm = 0
-  FolderRoot = paste("C:/Users/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/Best-Partition-Silhouete", sep="")
 }
 FolderScripts = paste(FolderRoot, "/scripts", sep="")
+
 
 ##################################################################################################
 # Options Configuration                                                                          #
@@ -49,16 +47,22 @@ options(java.parameters = "-Xmx32g")
 options(show.error.messages = TRUE)
 options(scipen=30)
 
+
+
 ##################################################################################################
 # Read the dataset file with the information for each dataset                                    #
 ##################################################################################################
 setwd(FolderRoot)
 datasets <- data.frame(read.csv("datasets-hpml-k.csv"))
 
+
+
 ##################################################################################################
 # ARGS COMMAND LINE                                                                              #
 ##################################################################################################
 args <- commandArgs(TRUE)
+
+
 
 ##################################################################################################
 # Get dataset information                                                                        #
@@ -66,11 +70,15 @@ args <- commandArgs(TRUE)
 ds <- datasets[as.numeric(args[1]),]
 cat("\nHPML-K DS \t ", as.numeric(args[1]))
 
+
+
 ##################################################################################################
 # Get the number of cores                                                                        #
 ##################################################################################################
 number_cores <- as.numeric(args[2])
 cat("\nHPML-K: cores \t ", number_cores)
+
+
 
 ##################################################################################################
 # Get the number of folds                                                                        #
@@ -78,17 +86,33 @@ cat("\nHPML-K: cores \t ", number_cores)
 number_folds <- as.numeric(args[3])
 cat("\nHPML-K: folds \t ", number_folds)
 
+
+
 ##################################################################################################
 # Get the number of folds                                                                        #
 ##################################################################################################
 folderResults <- toString(args[4])
 cat("\nHPML-K: folder \t ", folderResults)
 
+
+
 ##################################################################################################
 # Get dataset name                                                                               #
 ##################################################################################################
 dataset_name <- toString(ds$Name) 
 cat("\nHPML-K: nome \t ", dataset_name)
+
+
+##################################################################################################
+# DON'T RUN -- it's only for test the code
+# ds = datasets[2,]
+# dataset_name = ds$Name
+# number_dataset = ds$Id
+# number_cores = 10
+# number_folds = 10
+# folderResults = "/dev/shm/res"
+##################################################################################################
+
 
 ##################################################################################################
 # CONFIG THE FOLDER RESULTS                                                                      #
@@ -103,10 +127,14 @@ if(dir.exists(folderResults)==FALSE){
 setwd(FolderScripts)
 source("run.R")
 
+
+
 ##################################################################################################
 #
 ##################################################################################################
 diretorios = directories(dataset_name, folderResults)
+
+
 
 ##################################################################################################
 # execute the code and get the total execution time                                              #
@@ -114,6 +142,9 @@ diretorios = directories(dataset_name, folderResults)
 ##################################################################################################
 timeFinal <- system.time(results <- sps(args[1], number_cores, number_folds, folderResults))
 print(timeFinal)
+
+# DONT RUN ONLY FOR TEST
+#timeFinal <- system.time(results <- sps(2, number_cores, number_folds, folderResults))
 
 ##################################################################################################
 # save the total time in rds format in the dataset folder                                        #
@@ -141,13 +172,13 @@ print(system(str3))
 # copy file                                                                                      #
 ##################################################################################################
 cat("\nCopy file tar")
-str4 = paste("cp ", diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.tar.gz ", diretorios$folderReportSilhouete, sep="")
+str4 = paste("cp ", diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.tar.gz ", diretorios$folderDatasetResults, sep="")
 print(system(str4))
 
 ########################################################################################################################
 cat("\n Copy to google drive")
 origem = paste(diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.tar.gz", sep="")
-destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Select-Partition-Silhouete/", dataset_name, sep="")
+destino = paste("cloud:[2021]ResultadosExperimentos/Select-Partition-Silhouete/", dataset_name, sep="")
 comando = paste("rclone -v copy ", origem, " ", destino, sep="")
 system(comando)
 

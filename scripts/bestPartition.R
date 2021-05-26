@@ -27,21 +27,30 @@
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
-shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  shm = 1
-  FolderRoot = paste("/home/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/Best-Partition-Silhouete", sep="")
 } else {
-  shm = 0
-  FolderRoot = paste("C:/Users/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/Best-Partition-Silhouete", sep="")
 }
 FolderScripts = paste(FolderRoot, "/scripts", sep="")
 
 
 
 ##################################################################################################
-# 
+# FUNCTION COMPUTE SILHOUETE                                                                     #
+#   Objective:                                                                                   #
+#      Compute sillhouete for each partition/fold                                                #
+#   Parameters:                                                                                  #
+#      ds: information about the specific dataset                                                #
+#      resLS: label space from the specific dataset                                              #
+#      number_dataset: number of the specific dataset                                            #
+#      number_cores: number of cores to process in paralel                                       #
+#      number_folds: number of folds for the cross-validation                                    #
+#      folderResults: folder to process                                                          #
+#   Return:                                                                                      #          
+#      Silhouete Graphics                                                                        #
+#      Silhouete Values                                                                          #
 ##################################################################################################
 comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResults){
   
@@ -50,7 +59,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
   diretorios = directories(dataset_name, folderResults)
   
   cat("\nFrom 1 to 10 folds!")
-  f = 2
+  f = 1
   silhoueteParalel <- foreach(f = 1:number_folds) %dopar%{
     
     cat("\nFold: ", f)   
@@ -62,10 +71,10 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     FolderRoot = ""
     if (sistema[1] == "Linux"){
       shm = 1
-      FolderRoot = paste("/home/", sistema[7], "/Select-Partition-Silhouete", sep="")
+      FolderRoot = paste("/home/", sistema[7], "/Best-Partition-Silhouete", sep="")
     } else {
       shm = 0
-      FolderRoot = paste("C:/Users/", sistema[7], "/Select-Partition-Silhouete", sep="")
+      FolderRoot = paste("C:/Users/", sistema[7], "/Best-Partition-Silhouete", sep="")
     }
     FolderScripts = paste(FolderRoot, "/scripts", sep="")
     
@@ -76,7 +85,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     source("utils.R")
     
     ########################################################################
-    FolderSplit = paste(diretorios$folderResultSilhouete, "/Split-", f, sep="")
+    FolderSplit = paste(diretorios$folderResults, "/", dataset_name, "/Split-", f, sep="")
     if(dir.exists(FolderSplit)==FALSE){
       dir.create(FolderSplit)
     }
@@ -103,15 +112,17 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     espacoDeRotulos2 = data.frame(espacoDeRotulos2[order(espacoDeRotulos2$labels, decreasing = FALSE),])
     
     ########################################################################
-    Folder = paste(diretorios$folderFinalPartitions, "/", dataset_name, "/InfoPartitions/Split-",f, sep="")
+    Folder = paste(diretorios$folderPartitions, "/", dataset_name, "/Split-",f, sep="")
     setwd(Folder)
-    num.group = data.frame(read.csv(paste("fold-",f,"-new-summary-partitions.csv", sep="")))
-    num.part = as.numeric(nrow(num.group))
-    
+    num.groups = data.frame(read.csv(paste("fold-",f,"-groups-per-partition.csv", sep="")))
+    num.part = as.numeric(nrow(num.groups))
+
+    ########################################################################    
     np = 1
     cont = 0
     new.num.part = 0
     
+    ########################################################################
     p = 2
     while(p<=num.part){
       cat("\nPartition ", p)
@@ -122,19 +133,21 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
         dir.create(FolderPartition)
       }
       
+      ########################################################################  
       # get the number of groups for this partition
-      num.group2 = num.group[np,]
-      num.group3 = as.numeric(num.group2$new.num.groups)
+      num.groups2 = num.groups[np,]
+      num.group3 = as.numeric(num.groups2$num.groups)
       
+      ########################################################################  
       # get the labels with the respective groups
       FolderP = paste(Folder, "/Partition-", p, sep="")
       setwd(FolderP)
-      particao = data.frame(read.csv(paste("new-final-partition-", p, ".csv", sep="")))
-      particao = particao[,-1]
-      particao = data.frame(particao[order(particao$labels2, decreasing = FALSE),])
+      particao = data.frame(read.csv(paste("partition-", p, ".csv", sep="")))
+      particao = data.frame(particao[order(particao$label, decreasing = FALSE),])
       groups_label_space = cbind(particao, espacoDeRotulos2)
-      groups_label_space = groups_label_space[,-2]
-      
+      groups_label_space2 = groups_label_space[,-2]
+
+      ########################################################################        
       if(num.group3==1){
         cat("\nonly one group of labels")
         
@@ -153,10 +166,10 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
       } else {
         cat("\ntwo or more labels in the group")
         
-        groups_label_space2 = groups_label_space[,-2]
-        a = dist(groups_label_space2)
+        groups_label_space3 = groups_label_space2[,-2]
+        a = dist(groups_label_space3)
         b = as.dist(a)
-        sil = silhouette(groups_label_space2$group2, b)
+        sil = silhouette(groups_label_space2$group, b)
         sil = sortSilhouette(sil) 
         
         setwd(FolderPartition)
@@ -204,7 +217,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     } # fim da partição
     
     setwd(FolderSplit)
-    write.csv(Silhouete[-1,], paste("final-silhouete-fold-", f, ".csv", sep=""), row.names = FALSE)
+    write.csv(Silhouete[-1,], paste("fold-", f, "-silhouete.csv", sep=""), row.names = FALSE)
     
     if(interactive()==TRUE){ flush.console() }
     gc()
@@ -219,6 +232,22 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
   cat("\n\n\n\n")
 }
 
+
+##################################################################################################
+# FUNCTION COMPUTE BEST SILHOUETE                                                                #
+#   Objective:                                                                                   #
+#      Selcet the best partition                                                                 #
+#   Parameters:                                                                                  #
+#      ds: information about the specific dataset                                                #
+#      resLS: label space from the specific dataset                                              #
+#      number_dataset: number of the specific dataset                                            #
+#      number_cores: number of cores to process in paralel                                       #
+#      number_folds: number of folds for the cross-validation                                    #
+#      folderResults: folder to process                                                          #
+#   Return:                                                                                      #          
+#      Graphics from Silhouete                                                                   #
+#      Silhouete Values                                                                          #
+##################################################################################################
 selectBestPartition <- function(number_folds, dataset_name, folderResults){
   
   if(interactive()==TRUE){ flush.console() }
@@ -240,37 +269,52 @@ selectBestPartition <- function(number_folds, dataset_name, folderResults){
   f = 1
   while(f<=number_folds){
     
-    FolderSplit = paste(diretorios$folderResultSilhouete, "/Split-", f, sep="")
+    FolderSplit = paste(diretorios$folderResultsDataset, "/Split-", f, sep="")
     setwd(FolderSplit)
-    silhouete = data.frame(read.csv(paste("final-silhouete-fold-",f,".csv", sep="")))
+    silhouete = data.frame(read.csv(paste("fold-",f,"-silhouete.csv", sep="")))
     num.part = nrow(silhouete)
     indice = as.numeric(which.max(silhouete$valueSilhouete))
     
     silhouete2 = silhouete[indice,]
     
-    fold = silhouete2$fold
-    part = silhouete2$part
-    maximo = silhouete2$maximo
-    minimo = silhouete2$minimo
-    mediana = silhouete2$mediana
-    media = silhouete2$media
-    primeiroQuadrante = silhouete2$primeiroQuadrante
-    terceiroQuadrante = silhouete2$terceiroQuadrante
-    valueSilhouete = silhouete2$valueSilhouete
+    fold = as.numeric(silhouete2$fold)
+    part = as.numeric(silhouete2$part)
+    maximo = as.numeric(silhouete2$maximo)
+    minimo = as.numeric(silhouete2$minimo)
+    mediana = as.numeric(silhouete2$mediana)
+    media = as.numeric(silhouete2$media)
+    primeiroQuadrante = as.numeric(silhouete2$primeiroQuadrante)
+    terceiroQuadrante = as.numeric(silhouete2$terceiroQuadrante)
+    valueSilhouete = as.numeric(silhouete2$valueSilhouete)
     bestPartitions = rbind(bestPartitions, data.frame(fold, part, maximo, minimo, 
                                             mediana, media, primeiroQuadrante, terceiroQuadrante, valueSilhouete))
+    
+    ########################################################################  
+    # get the labels with the respective groups
+    FolderP = paste(diretorios$folderPartitions, "/", dataset_name, "/Split-", f, "/Partition-", part, sep="")
+    
+    destino = paste(diretorios$folderOutputDataset, "/Split-", f, sep="")
+    if(dir.exists(destino)==FALSE){
+      dir.create(destino)
+    }
+    str = paste("cp -r ", FolderP, " ", destino, sep="")
+    print(system(str))
+    
+    str2 = paste("cp ", diretorios$folderPartitions, "/", dataset_name, "/Split-", f, "/fold-", f, "-groups-per-partition.csv ", destino, sep="")
+    print(system(str2))
     
     f = f + 1
     if(interactive()==TRUE){ flush.console() }
     gc()
   } # fim do fold
-  
+
   setwd(diretorios$folderResultsDataset)
   write.csv(bestPartitions[-1,], paste(dataset_name, "-best-partitions.csv", sep=""), row.names = FALSE)
   
-  setwd(diretorios$folderReportsDataset)
-  write.csv(bestPartitions[-1,], paste(dataset_name, "-best-partitions.csv", sep=""), row.names = FALSE)
-  
+  setwd(diretorios$folderOutputDataset)
+  bestPartitions2 = bestPartitions[, c(1,2)]
+  write.csv(bestPartitions2[-1,], paste(dataset_name, "-best-partitions.csv", sep=""), row.names = FALSE)
+
   if(interactive()==TRUE){ flush.console() }
   gc()
   cat("\n##################################################################################################")
@@ -278,37 +322,6 @@ selectBestPartition <- function(number_folds, dataset_name, folderResults){
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
-
-
-bestPartition <- function(ds, resLS, dataset_name, number_folds, folderResults){
-  
-  diretorios = directories(dataset_name, folderResults)
-  
-  cat("\n\n################################################################################################")
-  cat("\n# Run: Compute silhouete                                                                         #")
-  timeCS = system.time(resCS <- comuputeSilhouete(ds, resLS, dataset_name, number_folds, folderResults))
-  cat("\n##################################################################################################\n\n") 
-  
-  cat("\n\n################################################################################################")
-  cat("\n# Run: Select the best partition                                                                 #")
-  timeBP = system.time(resBP <- selectBestPartition(number_folds, dataset_name, folderResults))
-  cat("\n##################################################################################################\n\n") 
-  
-  cat("\n\n################################################################################################")
-  cat("\nRuntime")
-  timesSilho = rbind(timeCS, timeBP)
-  setwd(diretorios$folderReportsDataset)
-  write.csv(timesSilho, "Silho-RunTime.csv")
-  cat("\n##################################################################################################")
-  
-  if(interactive()==TRUE){ flush.console() }
-  gc()
-  cat("\n##################################################################################################")
-  cat("\n# END BEST PARTITION                                                                             #")
-  cat("\n##################################################################################################")
-  cat("\n\n\n\n")
-}
-
 
 ##################################################################################################
 # Please, any errors, contact us: elainececiliagatto@gmail.com                                   #

@@ -27,14 +27,11 @@
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
-shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  shm = 1
-  FolderRoot = paste("/home/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/Best-Partition-Silhouete", sep="")
 } else {
-  shm = 0
-  FolderRoot = paste("C:/Users/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/Best-Partition-Silhouete", sep="")
 }
 FolderScripts = paste(FolderRoot, "/scripts", sep="")
 

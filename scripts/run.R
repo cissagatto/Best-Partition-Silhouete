@@ -27,25 +27,18 @@
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
-shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  shm = 1
-  FolderRoot = paste("/home/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/Best-Partition-Silhouete", sep="")
 } else {
-  shm = 0
-  FolderRoot = paste("C:/Users/", sistema[7], "/Select-Partition-Silhouete", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/Best-Partition-Silhouete", sep="")
 }
 FolderScripts = paste(FolderRoot, "/scripts", sep="")
-
 
 
 ##################################################################################################
 # LOAD INTERNAL LIBRARIES                                                                        #
 ##################################################################################################
-
-FolderScripts = paste(FolderRoot, "/scripts/", sep="")
-
 setwd(FolderScripts)
 source("libraries.R")
 
@@ -110,16 +103,21 @@ sps <- function(number_dataset, number_cores, number_folds, folderResults){
   timeLabelSpace = system.time(resLS <- labelSpace(ds, dataset_name, number_folds, folderResults))
   cat("\n##################################################################################################\n\n") 
   
-  cat("\n##################################################################################################\n\n")   
-  cat("\n#Run: Get partitions kohonen                                                                         #")
-  timeBP  = system.time(resGPK <- bestPartition(ds, resLS, dataset_name, number_folds, folderResults))
+  cat("\n\n################################################################################################")
+  cat("\n# Run: Compute silhouete                                                                         #")
+  timeCS = system.time(resCS <- comuputeSilhouete(ds, resLS, dataset_name, number_folds, folderResults))
   cat("\n##################################################################################################\n\n") 
-
+  
+  cat("\n\n################################################################################################")
+  cat("\n# Run: Select the best partition                                                                 #")
+  timeBP = system.time(resBP <- selectBestPartition(number_folds, dataset_name, folderResults))
+  cat("\n##################################################################################################\n\n") 
+  
   cat("\n\n################################################################################################")
   cat("\nRuntime")
-  timesExecute = rbind(timeLabelSpace, timeBP)
-  setwd(diretorios$folderReportsDataset)
-  write.csv(timesExecute, "RunTime-BestPartition.csv")
+  timesExecute = rbind(timeLabelSpace, timeCS, timeBP)
+  setwd(diretorios$folderDatasetResults)
+  write.csv(timesExecute, paste(dataset_name, "-RunTime-BestPartition.csv", sep=""))
   cat("\n##################################################################################################")
   
   cat("\n\n################################################################################################")
