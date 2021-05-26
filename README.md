@@ -37,7 +37,7 @@ The results stored in the folder _OUTPUT_ in the code https://github.com/cissaga
 
 <img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/structure_partitions_bps.png" width="500">
 
-NOTE: Please, pay attention to the datasets file names and the names in the CSV file. They must be the same, on the contrary, an error may occur.
+NOTE: Please, pay attention to the *datasets-hpmlk.csv* names and the names in the CSV file. They must be the same, on the contrary, an error may occur.
 
 ## BPS Folder Strucutre
 
