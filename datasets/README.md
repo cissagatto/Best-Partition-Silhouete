@@ -2,16 +2,16 @@ Aqui devem ficar os datasets
 
 -> datastes
 
---> [dataset]
+----> [dataset]
 
----> Cross-Validation
+-----> Cross-Validation
 
-----> Tr
+----------> Tr
 
-----> Ts
+----------> Ts
 
-----> Vl
+----------> Vl
 
----> LabelSpace
+-----> LabelSpace
 
----> NamesLabels
+-----> NamesLabels
