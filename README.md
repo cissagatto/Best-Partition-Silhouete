@@ -1,1 +1,1 @@
-# Partitions-Multilabel-Silhouete
+# Select the best hybrid partition with silhouete
