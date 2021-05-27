@@ -116,7 +116,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     setwd(Folder)
     num.groups = data.frame(read.csv(paste("fold-",f,"-groups-per-partition.csv", sep="")))
     num.part = as.numeric(nrow(num.groups))
-
+    
     ########################################################################    
     np = 1
     cont = 0
@@ -146,7 +146,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
       particao = data.frame(particao[order(particao$label, decreasing = FALSE),])
       groups_label_space = cbind(particao, espacoDeRotulos2)
       groups_label_space2 = groups_label_space[,-2]
-
+      
       ########################################################################        
       if(num.group3==1){
         cat("\nonly one group of labels")
@@ -265,6 +265,14 @@ selectBestPartition <- function(number_folds, dataset_name, folderResults){
   valueSilhouete = c(0)
   bestPartitions = data.frame(fold, part, maximo, minimo, mediana, media, primeiroQuadrante, terceiroQuadrante, valueSilhouete)
   
+  
+  ########################################################################
+  fold = c(0)
+  partition = c(0)
+  num.groups = c(0)
+  allNumGroups = data.frame(fold, partition, num.groups)
+  
+  
   cat("\nFrom 1 to 10 folds!")
   f = 1
   while(f<=number_folds){
@@ -290,6 +298,18 @@ selectBestPartition <- function(number_folds, dataset_name, folderResults){
                                             mediana, media, primeiroQuadrante, terceiroQuadrante, valueSilhouete))
     
     ########################################################################  
+    Folder = paste(diretorios$folderPartitions, "/", dataset_name, "/Split-",f, sep="")
+    setwd(Folder)
+    num.groups = data.frame(read.csv(paste("fold-",f,"-groups-per-partition.csv", sep="")))
+    num.groups2 = num.groups[,-1]
+    num.groups3 = filter(num.groups2, num.groups2$partition == part)
+    
+    fold = f
+    partition = num.groups3$partition
+    num.groups = num.groups3$num.groups
+    allNumGroups = rbind(allNumGroups, data.frame(fold, partition, num.groups))
+    
+    ########################################################################  
     # get the labels with the respective groups
     FolderP = paste(diretorios$folderPartitions, "/", dataset_name, "/Split-", f, "/Partition-", part, sep="")
     
@@ -308,20 +328,112 @@ selectBestPartition <- function(number_folds, dataset_name, folderResults){
     gc()
   } # fim do fold
 
+  ##################################################################################################
+  Folder = paste(diretorios$folderDatasetResults, "/", dataset_name, sep="")
+  if(dir.exists(Folder)==FALSE){
+    dir.create(Folder)
+  }
+  
   setwd(diretorios$folderResultsDataset)
+  write.csv(bestPartitions[-1,], paste(dataset_name, "-best-partitions.csv", sep=""), row.names = FALSE)
+  
+  setwd(Folder)
   write.csv(bestPartitions[-1,], paste(dataset_name, "-best-partitions.csv", sep=""), row.names = FALSE)
   
   setwd(diretorios$folderOutputDataset)
   bestPartitions2 = bestPartitions[, c(1,2)]
   write.csv(bestPartitions2[-1,], paste(dataset_name, "-best-partitions.csv", sep=""), row.names = FALSE)
-
+  
+  ##################################################################################################
+  allNumGroups2 = allNumGroups[-1,]
+  
+  setwd(diretorios$folderResultsDataset)
+  write.csv(allNumGroups2, paste(dataset_name, "-all-num-groups.csv", sep=""), row.names = FALSE)
+  
+  setwd(Folder)
+  write.csv(allNumGroups2, paste(dataset_name, "-all-num-groups.csv", sep=""), row.names = FALSE)
+  
+  setwd(diretorios$folderOutputDataset)
+  write.csv(allNumGroups2, paste(dataset_name, "-all-num-groups.csv", sep=""), row.names = FALSE)
+  
+  ##################################################################################################
   if(interactive()==TRUE){ flush.console() }
   gc()
+  
   cat("\n##################################################################################################")
   cat("\n# END FUNCTION SELECT ALL BEST PARTITION                                                         #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
+
+
+
+##################################################################################################
+# FUNCTION ASD                                                                                   #
+#   Objective                                                                                    #
+#       Compute statistics about the partitions                                                  #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#   Return                                                                                       #
+#       Sum, mean, median, standart deviation, max and min partitions                            #
+##################################################################################################
+asd <- function(ds, dataset_name, diretorios, namesLabels){
+    
+  # function return 
+  retorno = list()
+  
+  # get the best partitions of the dataset
+  setwd(diretorios$folderOutputDataset)
+  nome = paste(dataset_name, "-best-partitions.csv", sep="")
+  bP = data.frame(read.csv(nome))
+  
+  nome2 = paste(dataset_name, "-all-num-groups.csv", sep="")
+  particoes = data.frame(read.csv(nome2))
+  
+  frequencia = count(particoes, particoes$num.groups)
+  names(frequencia) = c("groups","frequency")
+  
+  setwd(diretorios$folderResultsDataset)
+  write.csv(frequencia, paste(dataset_name, "-frequency-chosed-groups.csv", sep=""), row.names = FALSE)
+  
+  Folder = paste(diretorios$folderDatasetResults, "/", dataset_name, sep="")
+  if(dir.exists(Folder)==FALSE){
+    dir.create(Folder)
+  }
+  setwd(Folder)
+  write.csv(frequencia, paste(dataset_name, "-frequency-chosed-groups.csv", sep=""), row.names = FALSE)
+  
+  # computes statistics
+  soma = apply(particoes, 2, sum)
+  media = apply(particoes, 2, mean)
+  mediana = apply(particoes, 2, median)
+  desvioPadrao = apply(particoes, 2, sd)
+  minimo = apply(particoes, 2, min)
+  maximo = apply(particoes, 2, max)
+  sumario = rbind(soma, media, mediana, desvioPadrao, minimo, maximo)
+  
+  # saves results in the RESULTS folder
+  setwd(diretorios$folderResultsDataset)
+  write.csv(sumario, paste(dataset_name, "-statistic-sumary-best-part.csv", sep=""))
+  
+  setwd(Folder)
+  write.csv(sumario, paste(dataset_name, "-statistic-sumary-best-part.csv", sep=""))
+  
+  # function return
+  retorno$sumario = sumario
+  return(retorno)
+  
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# Statistics: END                                                                                #")
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+}
+
+
+
+
 
 ##################################################################################################
 # Please, any errors, contact us: elainececiliagatto@gmail.com                                   #

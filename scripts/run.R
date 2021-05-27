@@ -114,9 +114,18 @@ sps <- function(number_dataset, number_cores, number_folds, folderResults){
   cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
+  cat("\n# Run: Analysis Partitions                                                                       #")
+  timeASD = system.time(resADS <- asd(ds, dataset_name, diretorios, namesLabels)) 
+  cat("\n\n################################################################################################\n\n")
+  
+  cat("\n\n################################################################################################")
   cat("\nRuntime")
-  timesExecute = rbind(timeLabelSpace, timeCS, timeBP)
-  setwd(diretorios$folderDatasetResults)
+  timesExecute = rbind(timeLabelSpace, timeCS, timeBP, timeASD)
+  Folder = paste(diretorios$folderDatasetResults, "/", dataset_name, sep="")
+  if(dir.exists(Folder)==FALSE){
+    dir.create(Folder)
+  }
+  setwd(Folder)
   write.csv(timesExecute, paste(dataset_name, "-RunTime-BestPartition.csv", sep=""))
   cat("\n##################################################################################################")
   

@@ -110,7 +110,7 @@ cat("\nHPML-K: nome \t ", dataset_name)
 # number_dataset = ds$Id
 # number_cores = 10
 # number_folds = 10
-# folderResults = "/dev/shm/res"
+ folderResults = "/dev/shm/res"
 ##################################################################################################
 
 
@@ -130,9 +130,16 @@ source("run.R")
 
 
 ##################################################################################################
-#
-##################################################################################################
 diretorios = directories(dataset_name, folderResults)
+
+
+
+########################################################################################################################
+cat("\n Copy partitions from google drive")
+destino = paste(diretorios$folderPartitions, "/", dataset_name, sep="")
+origem = paste("cloud:[2021]ResultadosExperimentos/Generate-Partitions-Kohonen/", dataset_name, sep="")
+comando1 = paste("rclone -v copy ", origem, " ", destino, sep="")
+system(comando1 )
 
 
 
@@ -146,54 +153,104 @@ print(timeFinal)
 # DONT RUN ONLY FOR TEST
 #timeFinal <- system.time(results <- sps(2, number_cores, number_folds, folderResults))
 
-##################################################################################################
-# save the total time in rds format in the dataset folder                                        #
+Folder = paste(diretorios$folderDatasetResults, "/", dataset_name, sep="")
+if(dir.exists(Folder)==FALSE){
+  dir.create(Folder)
+}
+
+
+
 ##################################################################################################
 cat("\nSave Rds")
 str0 <- paste(diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.rds", sep="")
 save(results, file = str0)
 
-##################################################################################################
-# save results in RDATA form in the dataset folder                                               #
+
+
 ##################################################################################################
 cat("\nSave Rdata")
 str1 <- paste(diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.RData", sep="")
 save(results, file = str1)
 
-##################################################################################################
-# compress the results for later transfer to the dataset folder                                  #
+
+
 ##################################################################################################
 cat("\nCompress results")
 setwd(diretorios$folderResultsDataset)
 str3 = paste("tar -zcvf ", dataset_name, "-results-silhouete.tar.gz ", diretorios$folderResultsDataset, sep="")
 print(system(str3))
 
-##################################################################################################
-# copy file                                                                                      #
+
+
 ##################################################################################################
 cat("\nCopy file tar")
-str4 = paste("cp ", diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.tar.gz ", diretorios$folderDatasetResults, sep="")
+str4 = paste("cp ", diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.tar.gz ", Folder, sep="")
 print(system(str4))
 
+
+
 ########################################################################################################################
-cat("\n Copy to google drive")
-origem = paste(diretorios$folderResultsDataset, "/", dataset_name, "-results-silhouete.tar.gz", sep="")
-destino = paste("cloud:[2021]ResultadosExperimentos/Select-Partition-Silhouete/", dataset_name, sep="")
-comando = paste("rclone -v copy ", origem, " ", destino, sep="")
-system(comando)
+cat("\n Copy Results to google drive")
+destino = paste("cloud:[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+comando1 = paste("rclone -v copy ", Folder, " ", destino, sep="")
+system(comando1)
+
+
+
+########################################################################################################################
+cat("\n Copy Outupt to google drive")
+origem = diretorios$folderOutputDataset
+destino = paste("cloud:[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+comando2 = paste("rclone -v copy ", origem, " ", destino, sep="")
+system(comando2)
+
+
 
 ##################################################################################################
-# del                                                                                      #
-##################################################################################################
-cat("\nDelete folder")
+cat("\nDelete folder results temporary")
 str5 = paste("rm -r ", diretorios$folderResults, sep="")
 print(system(str5))
 
+
+
+##################################################################################################
+cat("\nDelete folder output dataset")
+str7 = paste("rm -r ", diretorios$folderOutputDataset, sep="")
+print(system(str7))
+
+
+
+##################################################################################################
+cat("\nDelete folder partitions")
+str6 = paste("rm -r ", diretorios$folderPartitions, "/", dataset_name, sep="")
+print(system(str6))
+
+
+
+##################################################################################################
+cat("\nDelete folder specific dataset")
+str8 = paste("rm -r ", diretorios$folderSpecificDataset, sep="")
+print(system(str8))
+
+
+##################################################################################################
+cat("\nDelete folder results")
+str9 = paste("rm -r ", Folder, sep="")
+print(system(str9))
+
+
+
+##################################################################################################
 cat("\nClear R objects")
 rm(list = ls())
 
+
+
+##################################################################################################
 cat("\nGarbage collector")
 gc()
+
+
 
 cat("\n##################################################################################################")
 cat("\n# END OF SELECT BEST PARTITION WITH SILHOUETE. THANKS GOD !!                                     #")
