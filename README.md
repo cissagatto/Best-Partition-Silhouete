@@ -3,7 +3,7 @@ This code is part of my PhD research at PPG-CC/DC/UFSCar. The aim is select the 
 
 The figure bellow shows the fluxogram for this code:
 
-<img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/best_partition_silhouete_2.png" width="500">
+<img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/best_partition_silhouete_3.png" width="500">
 
 ## Scripts
 This source code consists of an R project for R Studio and the following R scripts:
