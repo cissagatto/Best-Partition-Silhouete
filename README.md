@@ -5,6 +5,8 @@ The figure bellow shows the fluxogram for this code:
 
 <img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/best_partition_silhouete.png" width="500">
 
+*[https://github.com/cissagatto/Generate-Partitions-Kohonen]
+
 ## Scripts
 This source code consists of an R project for R Studio and the following R scripts:
 
