@@ -65,9 +65,9 @@ CPU:
 _Then the experiment was executed in a cluster at UFSCar._
 
 ## Results
-The results stored in the folder _OUTPUT_ it will be used in the next phase: Test-Best-Partition-Clus, Test-Best-Partition-ECC, etc. The result for a dataset must be put in the folder _BESTPARTITIONS_ in the code https://github.com/cissagatto/Test-Best-Partition-Clus.
+The results are store in the folder _RESTULTS_. The results stored in the folder _OUTPUT_ it will be used in the next phase: Test-Best-Partition-Clus, Test-Best-Partition-ECC, etc. The result for a dataset must be put in the folder _BESTPARTITIONS_ in the code https://github.com/cissagatto/Test-Best-Partition-Clus.
 
-<img src="https://github.com/cissagatto/Generate-Partitions-Kohonen/blob/main/results_structure_gpk.png" width="300">
+<img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/structure_partitions_bps.png" width="300">
 
 ## RUN
 To run the code, open the terminal, enter */home/[username]/Best-Partition-Silhouete/scripts/* folder, and type:
