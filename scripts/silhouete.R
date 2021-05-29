@@ -67,7 +67,7 @@ args <- commandArgs(TRUE)
 ##################################################################################################
 # Get dataset information                                                                        #
 ##################################################################################################
-ds <- datasets[as.numeric(args[1]),]
+ds <- datasets[args[1],]
 cat("\nHPML-K DS \t ", as.numeric(args[1]))
 
 
@@ -105,12 +105,12 @@ cat("\nHPML-K: nome \t ", dataset_name)
 
 ##################################################################################################
 # DON'T RUN -- it's only for test the code
-# ds = datasets[2,]
+# ds <- datasets[29,]
 # dataset_name = ds$Name
 # number_dataset = ds$Id
 # number_cores = 10
 # number_folds = 10
- folderResults = "/dev/shm/res"
+# folderResults = "/dev/shm/res"
 ##################################################################################################
 
 
@@ -137,7 +137,7 @@ diretorios = directories(dataset_name, folderResults)
 ########################################################################################################################
 cat("\n Copy partitions from google drive")
 destino = paste(diretorios$folderPartitions, "/", dataset_name, sep="")
-origem = paste("cloud:[2021]ResultadosExperimentos/Generate-Partitions-Kohonen/", dataset_name, sep="")
+origem = paste("cloud:elaine/[2021]ResultadosExperimentos/Generate-Partitions-Kohonen/", dataset_name, sep="")
 comando1 = paste("rclone -v copy ", origem, " ", destino, sep="")
 print(system(comando1))
 
@@ -151,7 +151,7 @@ timeFinal <- system.time(results <- sps(args[1], number_cores, number_folds, fol
 print(timeFinal)
 
 # DONT RUN ONLY FOR TEST
-#timeFinal <- system.time(results <- sps(2, number_cores, number_folds, folderResults))
+# timeFinal <- system.time(results <- sps(number_dataset, number_cores, number_folds, folderResults))
 
 Folder = paste(diretorios$folderDatasetResults, "/", dataset_name, sep="")
 if(dir.exists(Folder)==FALSE){
@@ -191,7 +191,7 @@ print(system(str4))
 
 ########################################################################################################################
 cat("\n Copy Results to google drive")
-destino = paste("cloud:[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
 comando1 = paste("rclone -v copy ", Folder, " ", destino, sep="")
 print(system(comando1))
 
@@ -200,7 +200,7 @@ print(system(comando1))
 ########################################################################################################################
 cat("\n Copy Outupt to google drive")
 origem = diretorios$folderOutputDataset
-destino = paste("cloud:[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
 comando2 = paste("rclone -v copy ", origem, " ", destino, sep="")
 print(system(comando2))
 
