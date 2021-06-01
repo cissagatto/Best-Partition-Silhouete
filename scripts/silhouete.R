@@ -105,7 +105,7 @@ cat("\nHPML-K: nome \t ", dataset_name)
 
 ##################################################################################################
 # DON'T RUN -- it's only for test the code
-# ds <- datasets[29,]
+# ds <- datasets[74,]
 # dataset_name = ds$Name
 # number_dataset = ds$Id
 # number_cores = 10
@@ -120,6 +120,8 @@ cat("\nHPML-K: nome \t ", dataset_name)
 if(dir.exists(folderResults)==FALSE){
   dir.create(folderResults)
 }
+ 
+ 
 
 ##################################################################################################
 # LOAD RUN.R                                                                                     #
@@ -207,23 +209,23 @@ print(system(comando2))
 
 
 ##################################################################################################
-#cat("\nDelete folder results temporary")
-#str5 = paste("rm -r ", diretorios$folderResults, sep="")
-#print(system(str5))
+cat("\nDelete folder results temporary")
+str5 = paste("rm -r ", diretorios$folderResults, sep="")
+print(system(str5))
 
 
 
 ##################################################################################################
-#cat("\nDelete folder output dataset")
-#str7 = paste("rm -r ", diretorios$folderOutputDataset, sep="")
-#print(system(str7))
+cat("\nDelete folder output dataset")
+str7 = paste("rm -r ", diretorios$folderOutputDataset, sep="")
+print(system(str7))
 
 
 
 ##################################################################################################
-#cat("\nDelete folder partitions")
-#str6 = paste("rm -r ", diretorios$folderPartitions, "/", dataset_name, sep="")
-#print(system(str6))
+cat("\nDelete folder partitions")
+str6 = paste("rm -r ", diretorios$folderPartitions, "/", dataset_name, sep="")
+print(system(str6))
 
 
 
@@ -234,9 +236,9 @@ print(system(str8))
 
 
 ##################################################################################################
-#cat("\nDelete folder results")
-#str9 = paste("rm -r ", Folder, sep="")
-#print(system(str9))
+cat("\nDelete folder results")
+str9 = paste("rm -r ", Folder, sep="")
+print(system(str9))
 
 
 

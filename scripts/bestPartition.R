@@ -61,6 +61,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
   cat("\nFrom 1 to 10 folds!")
   f = 1
   silhoueteParalel <- foreach(f = 1:number_folds) %dopar%{
+  #while(f<=number_folds){
     
     cat("\nFold: ", f)   
     
@@ -142,14 +143,14 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
       # get the labels with the respective groups
       FolderP = paste(Folder, "/Partition-", p, sep="")
       setwd(FolderP)
-      particao = data.frame(read.csv(paste("partition-", p, ".csv", sep="")))
+      particao = data.frame(read.csv(paste("fold-",f, "-partition-", p, ".csv", sep="")))
       particao = data.frame(particao[order(particao$label, decreasing = FALSE),])
       groups_label_space = cbind(particao, espacoDeRotulos2)
       groups_label_space2 = groups_label_space[,-2]
       
       ########################################################################        
       if(num.group3==1){
-        cat("\nonly one group of labels")
+        cat("\nOnly one group of labels (global partition)")
         
         fold = f
         part = p
@@ -169,39 +170,58 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
         groups_label_space3 = groups_label_space2[,-2]
         a = dist(groups_label_space3)
         b = as.dist(a)
-        sil = silhouette(groups_label_space2$group, b)
-        sil = sortSilhouette(sil) 
+        sil = silhouette(groups_label_space3[,1], b)
         
-        setwd(FolderPartition)
-        write.csv(sil, paste("res-silho-p-", p, ".csv", sep=""))
-        
-        setwd(FolderPartition)
-        pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
-        print(plot(sil))
-        dev.off()
-        cat("\n")     
-        
-        setwd(FolderPartition)
-        pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
-        print(fviz_silhouette(sil))
-        dev.off()
-        cat("\n")     
-        
-        # Summary of silhouette analysis
-        si.sum = summary(sil)
-        res.si.sum = unlist(si.sum)
-        
-        fold = f
-        part = p
-        maximo = res.si.sum$si.summary.Max.
-        minimo = res.si.sum$si.summary.Min.
-        mediana = res.si.sum$si.summary.Median
-        media = res.si.sum$si.summary.Mean
-        primeiroQuadrante = res.si.sum$`si.summary.1st Qu.`
-        terceiroQuadrante = res.si.sum$`si.summary.3rd Qu.`
-        valueSilhouete = res.si.sum$avg.width
-        Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
-                                          primeiroQuadrante, terceiroQuadrante, valueSilhouete))
+        if(is.na(sil)==TRUE){
+          cat("\nOne label per group (local partition)")
+          
+          fold = f
+          part = p
+          maximo = NA
+          minimo = NA
+          mediana = NA
+          media = NA
+          primeiroQuadrante = NA
+          terceiroQuadrante = NA
+          valueSilhouete = NA
+          Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
+                                                  primeiroQuadrante, terceiroQuadrante, valueSilhouete))
+        } else {
+          
+          sil = sortSilhouette(sil) 
+          
+          setwd(FolderPartition)
+          write.csv(sil, paste("res-silho-p-", p, ".csv", sep=""))
+          
+          setwd(FolderPartition)
+          pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+          print(plot(sil))
+          dev.off()
+          cat("\n")     
+          
+          setwd(FolderPartition)
+          pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+          print(fviz_silhouette(sil))
+          dev.off()
+          cat("\n")     
+          
+          # Summary of silhouette analysis
+          si.sum = summary(sil)
+          res.si.sum = unlist(si.sum)
+          
+          fold = f
+          part = p
+          maximo = res.si.sum$si.summary.Max.
+          minimo = res.si.sum$si.summary.Min.
+          mediana = res.si.sum$si.summary.Median
+          media = res.si.sum$si.summary.Mean
+          primeiroQuadrante = res.si.sum$`si.summary.1st Qu.`
+          terceiroQuadrante = res.si.sum$`si.summary.3rd Qu.`
+          valueSilhouete = res.si.sum$avg.width
+          Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
+                                                  primeiroQuadrante, terceiroQuadrante, valueSilhouete)) 
+          
+        }
         
       }
       
