@@ -113,14 +113,12 @@ cat("\nHPML-K: nome \t ", dataset_name)
 # folderResults = "/dev/shm/res"
 ##################################################################################################
 
-
 ##################################################################################################
 # CONFIG THE FOLDER RESULTS                                                                      #
 ##################################################################################################
 if(dir.exists(folderResults)==FALSE){
   dir.create(folderResults)
 }
- 
  
 
 ##################################################################################################
@@ -130,18 +128,16 @@ setwd(FolderScripts)
 source("run.R")
 
 
-
 ##################################################################################################
 diretorios = directories(dataset_name, folderResults)
 
 
-
-########################################################################################################################
-cat("\n Copy partitions from google drive")
-destino = paste(diretorios$folderPartitions, "/", dataset_name, sep="")
-origem = paste("cloud:elaine/[2021]ResultadosExperimentos/Generate-Partitions-Kohonen/", dataset_name, sep="")
-comando1 = paste("rclone -v copy ", origem, " ", destino, sep="")
-print(system(comando1))
+##################################################################################################
+#cat("\n Copy partitions from google drive")
+#destino = paste(diretorios$folderPartitions, "/", dataset_name, sep="")
+#origem = paste("cloud:elaine/[2021]ResultadosExperimentos/Generate-Partitions-Kohonen/", dataset_name, sep="")
+#comando1 = paste("rclone -v copy ", origem, " ", destino, sep="")
+#print(system(comando1))
 
 
 
@@ -192,19 +188,19 @@ print(system(str4))
 
 
 ########################################################################################################################
-cat("\n Copy Results to google drive")
-destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
-comando1 = paste("rclone -v copy ", Folder, " ", destino, sep="")
-print(system(comando1))
+#cat("\n Copy Results to google drive")
+#destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+#comando1 = paste("rclone -v copy ", Folder, " ", destino, sep="")
+#print(system(comando1))
 
 
 
 ########################################################################################################################
-cat("\n Copy Outupt to google drive")
-origem = diretorios$folderOutputDataset
-destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
-comando2 = paste("rclone -v copy ", origem, " ", destino, sep="")
-print(system(comando2))
+#cat("\n Copy Outupt to google drive")
+#origem = diretorios$folderOutputDataset
+#destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+#comando2 = paste("rclone -v copy ", origem, " ", destino, sep="")
+#print(system(comando2))
 
 
 
@@ -216,16 +212,16 @@ print(system(str5))
 
 
 ##################################################################################################
-cat("\nDelete folder output dataset")
-str7 = paste("rm -r ", diretorios$folderOutputDataset, sep="")
-print(system(str7))
+#cat("\nDelete folder output dataset")
+#str7 = paste("rm -r ", diretorios$folderOutputDataset, sep="")
+#print(system(str7))
 
 
 
 ##################################################################################################
-cat("\nDelete folder partitions")
-str6 = paste("rm -r ", diretorios$folderPartitions, "/", dataset_name, sep="")
-print(system(str6))
+#cat("\nDelete folder partitions")
+#str6 = paste("rm -r ", diretorios$folderPartitions, "/", dataset_name, sep="")
+#print(system(str6))
 
 
 
@@ -236,9 +232,9 @@ print(system(str8))
 
 
 ##################################################################################################
-cat("\nDelete folder results")
-str9 = paste("rm -r ", Folder, sep="")
-print(system(str9))
+#cat("\nDelete folder results")
+#str9 = paste("rm -r ", Folder, sep="")
+#print(system(str9))
 
 
 
