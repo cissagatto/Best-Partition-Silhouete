@@ -35,7 +35,7 @@ The _"Id"_ of the dataset is a mandatory parameter in the command line to run al
 Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar, and weka.jar. Without these jars, the code not runs. Also, confirms if the folder _libs_ is present with the jars: Clus.jar, commons-math-1.0.jar, jgap.jar and weka.jar.
 
 ### Step-5
-The results stored in the folder _OUTPUT_ in the code https://github.com/cissagatto/Generate-Partitions-Kohonen will be used here. Copy the folder with the name of the dataset in the folder _PARTITIONS_.
+The results stored in the folder _OUTPUT_ in the codes _Generate-Partition-Kohonen, or Generate-Partition-Random1, or Generate-Partition-Random2 or Generate-Partition-Jaccard_ will be used here. Copy the folder with the name of the dataset in the folder _PARTITIONS_.
 
 <img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/structure_partitions_bps.png" width="300">
 
