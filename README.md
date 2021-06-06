@@ -1,5 +1,5 @@
-# Select the best hybrid partition with silhouete
-This code is part of my PhD research at PPG-CC/DC/UFSCar. The aim is select the best hybrid partition for multilabel classification.
+# Select the best partition with silhouete
+This code is part of my PhD research at PPG-CC/DC/UFSCar. The aim is select the best partition for multilabel classification.
 
 The figure bellow shows the fluxogram for this code:
 
