@@ -67,7 +67,7 @@ CPU:
 _Then the experiment was executed in a cluster at UFSCar._
 
 ## Results
-The results are store in the folder _RESTULTS_. The results stored in the folder _OUTPUT_ it will be used in the next phase: Test-Best-Partition-Clus, Test-Best-Partition-ECC, etc. The result for a dataset must be put in the folder _BESTPARTITIONS_ in the code https://github.com/cissagatto/Test-Best-Partition-Clus.
+The results are store in the folder _RESULTS_. The results stored in the folder _OUTPUT_ here, it will be used in the next phase. The OUTPUT for a dataset must be put in the folder _BESTPARTITIONS_ in the codes _Test-Best-Partition-Clus_, or _Test-Best-Partition-ECC_.
 
 <img src="https://github.com/cissagatto/Best-Partition-Silhouete/blob/main/structure_output_bps.png" width="300">
 
