@@ -60,7 +60,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
   
   cat("\nFrom 1 to 10 folds!")
   f = 1
-  silhoueteParalel <- foreach(f = 1:number_folds) %dopar%{
+  silhoueteParalel <- foreach(f = 1:number_folds) %dopar% {
   #while(f<=number_folds){
     
     cat("\nFold: ", f)   
@@ -113,8 +113,13 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     espacoDeRotulos2 = data.frame(espacoDeRotulos2[order(espacoDeRotulos2$labels, decreasing = FALSE),])
     
     ########################################################################
+    cat("\n\nGrupos por particão")
+    
     Folder = paste(diretorios$folderPartitions, "/", dataset_name, "/Split-",f, sep="")
     setwd(Folder)
+    cat("\n\n", Folder)
+
+    # fold-1-groups-per-partitions.csv
     num.groups = data.frame(read.csv(paste("fold-",f,"-groups-per-partition.csv", sep="")))
     num.part = as.numeric(nrow(num.groups))
     
@@ -122,58 +127,38 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
     np = 1
     cont = 0
     new.num.part = 0
-    
-    ########################################################################
-    p = 2
-    while(p<=num.part){
-      cat("\nPartition ", p)
-      
+  
       ########################################################################
-      FolderPartition = paste(FolderSplit, "/Partition-", p, sep="")
-      if(dir.exists(FolderPartition)==FALSE){
-        dir.create(FolderPartition)
-      }
-      
-      ########################################################################  
-      # get the number of groups for this partition
-      num.groups2 = num.groups[np,]
-      num.group3 = as.numeric(num.groups2$num.groups)
-      
-      ########################################################################  
-      # get the labels with the respective groups
-      FolderP = paste(Folder, "/Partition-", p, sep="")
-      setwd(FolderP)
-      particao = data.frame(read.csv(paste("fold-",f, "-partition-", p, ".csv", sep="")))
-      particao = data.frame(particao[order(particao$label, decreasing = FALSE),])
-      groups_label_space = cbind(particao, espacoDeRotulos2)
-      groups_label_space2 = groups_label_space[,-2]
-      
-      ########################################################################        
-      if(num.group3==1){
-        cat("\nOnly one group of labels (global partition)")
+      p = 2
+      while(p<=num.part){
+        cat("\nPartition ", p)
         
-        fold = f
-        part = p
-        maximo = NA
-        minimo = NA
-        mediana = NA
-        media = NA
-        primeiroQuadrante = NA
-        terceiroQuadrante = NA
-        valueSilhouete = NA
-        Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
-                                            primeiroQuadrante, terceiroQuadrante, valueSilhouete))
+        ########################################################################
+        FolderPartition = paste(FolderSplit, "/Partition-", p, sep="")
+        if(dir.exists(FolderPartition)==FALSE){
+          dir.create(FolderPartition)
+        }
         
-      } else {
-        cat("\ntwo or more labels in the group")
+        ########################################################################  
+        # get the number of groups for this partition
+        num.groups2 = num.groups[np,]
+        num.group3 = as.numeric(num.groups2$num.groups)
         
-        groups_label_space3 = groups_label_space2[,-2]
-        a = dist(groups_label_space3)
-        b = as.dist(a)
-        sil = silhouette(groups_label_space3[,1], b)
+        ########################################################################  
+        # get the labels with the respective groups
+        cat("\n\nAbrindo partição")
+        FolderP = paste(Folder, "/Partition-", p, sep="")      
+        setwd(FolderP)
+        cat("\n\n", Folder)
         
-        if(is.na(sil)==TRUE){
-          cat("\nOne label per group (local partition)")
+        particao = data.frame(read.csv(paste("partition-", p, ".csv", sep="")))
+        particao = data.frame(particao[order(particao$label, decreasing = FALSE),])
+        groups_label_space = cbind(particao, espacoDeRotulos2)
+        groups_label_space2 = groups_label_space[,-2]
+        
+        ########################################################################        
+        if(num.group3==1){
+          cat("\nOnly one group of labels (global partition)")
           
           fold = f
           part = p
@@ -186,55 +171,79 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
           valueSilhouete = NA
           Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
                                                   primeiroQuadrante, terceiroQuadrante, valueSilhouete))
+          
         } else {
+          cat("\ntwo or more labels in the group")
           
-          sil = sortSilhouette(sil) 
+          groups_label_space3 = groups_label_space2[,-2]
+          a = dist(groups_label_space3)
+          b = as.dist(a)
+          sil = silhouette(groups_label_space3[,1], b)
           
-          setwd(FolderPartition)
-          write.csv(sil, paste("res-silho-p-", p, ".csv", sep=""))
-          
-          setwd(FolderPartition)
-          pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
-          print(plot(sil))
-          dev.off()
-          cat("\n")     
-          
-          setwd(FolderPartition)
-          pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
-          print(fviz_silhouette(sil))
-          dev.off()
-          cat("\n")     
-          
-          # Summary of silhouette analysis
-          si.sum = summary(sil)
-          res.si.sum = unlist(si.sum)
-          
-          fold = f
-          part = p
-          maximo = res.si.sum$si.summary.Max.
-          minimo = res.si.sum$si.summary.Min.
-          mediana = res.si.sum$si.summary.Median
-          media = res.si.sum$si.summary.Mean
-          primeiroQuadrante = res.si.sum$`si.summary.1st Qu.`
-          terceiroQuadrante = res.si.sum$`si.summary.3rd Qu.`
-          valueSilhouete = res.si.sum$avg.width
-          Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
-                                                  primeiroQuadrante, terceiroQuadrante, valueSilhouete)) 
+          if(is.na(sil)==TRUE){
+            cat("\nOne label per group (local partition)")
+            
+            fold = f
+            part = p
+            maximo = NA
+            minimo = NA
+            mediana = NA
+            media = NA
+            primeiroQuadrante = NA
+            terceiroQuadrante = NA
+            valueSilhouete = NA
+            Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
+                                                    primeiroQuadrante, terceiroQuadrante, valueSilhouete))
+          } else {
+            
+            sil = sortSilhouette(sil) 
+            
+            setwd(FolderPartition)
+            write.csv(sil, paste("res-silho-p-", p, ".csv", sep=""))
+            
+            setwd(FolderPartition)
+            pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+            print(plot(sil))
+            dev.off()
+            cat("\n")     
+            
+            setwd(FolderPartition)
+            pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+            print(fviz_silhouette(sil))
+            dev.off()
+            cat("\n")     
+            
+            # Summary of silhouette analysis
+            si.sum = summary(sil)
+            res.si.sum = unlist(si.sum)
+            
+            fold = f
+            part = p
+            maximo = res.si.sum$si.summary.Max.
+            minimo = res.si.sum$si.summary.Min.
+            mediana = res.si.sum$si.summary.Median
+            media = res.si.sum$si.summary.Mean
+            primeiroQuadrante = res.si.sum$`si.summary.1st Qu.`
+            terceiroQuadrante = res.si.sum$`si.summary.3rd Qu.`
+            valueSilhouete = res.si.sum$avg.width
+            Silhouete = rbind(Silhouete, data.frame(fold, part, maximo, minimo, mediana, media, 
+                                                    primeiroQuadrante, terceiroQuadrante, valueSilhouete)) 
+            
+          }
           
         }
         
-      }
+        # incrementa o número da partição do arquivo csv
+        np = np + 1
+        
+        # incrementa o número da partição do while
+        p = p + 1
+        
+        if(interactive()==TRUE){ flush.console() }
+        
+        gc()
+      } # fim da partição
       
-      # incrementa o número da partição do arquivo csv
-      np = np + 1
-      
-      # incrementa o número da partição do while
-      p = p + 1
-      
-      if(interactive()==TRUE){ flush.console() }
-      
-      gc()
-    } # fim da partição
     
     setwd(FolderSplit)
     write.csv(Silhouete[-1,], paste("fold-", f, "-silhouete.csv", sep=""), row.names = FALSE)

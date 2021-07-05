@@ -48,13 +48,11 @@ options(show.error.messages = TRUE)
 options(scipen=30)
 
 
-
 ##################################################################################################
 # Read the dataset file with the information for each dataset                                    #
 ##################################################################################################
 setwd(FolderRoot)
-datasets <- data.frame(read.csv("datasets-hpml-k.csv"))
-
+datasets <- data.frame(read.csv("datasets.csv"))
 
 
 ##################################################################################################
@@ -63,55 +61,66 @@ datasets <- data.frame(read.csv("datasets-hpml-k.csv"))
 args <- commandArgs(TRUE)
 
 
-
 ##################################################################################################
 # Get dataset information                                                                        #
 ##################################################################################################
 ds <- datasets[args[1],]
-cat("\nHPML-K DS \t ", as.numeric(args[1]))
 
+
+##################################################################################################
+# Get dataset information                                                                        #
+##################################################################################################
+number_dataset <- as.numeric(args[1])
+cat("\nBPS: number_dataset \t ", number_dataset)
 
 
 ##################################################################################################
 # Get the number of cores                                                                        #
 ##################################################################################################
 number_cores <- as.numeric(args[2])
-cat("\nHPML-K: cores \t ", number_cores)
-
+cat("\nBPS: cores \t ", number_cores)
 
 
 ##################################################################################################
 # Get the number of folds                                                                        #
 ##################################################################################################
 number_folds <- as.numeric(args[3])
-cat("\nHPML-K: folds \t ", number_folds)
-
+cat("\nBPS: folds \t ", number_folds)
 
 
 ##################################################################################################
 # Get the number of folds                                                                        #
 ##################################################################################################
 folderResults <- toString(args[4])
-cat("\nHPML-K: folder \t ", folderResults)
-
+cat("\nBPS: folder \t ", folderResults)
 
 
 ##################################################################################################
 # Get dataset name                                                                               #
 ##################################################################################################
 dataset_name <- toString(ds$Name) 
-cat("\nHPML-K: nome \t ", dataset_name)
+cat("\nBPS: nome \t ", dataset_name)
 
 
 ##################################################################################################
 # DON'T RUN -- it's only for test the code
-# ds <- datasets[74,]
+# ds <- datasets[17,]
 # dataset_name = ds$Name
 # number_dataset = ds$Id
 # number_cores = 10
 # number_folds = 10
 # folderResults = "/dev/shm/res"
 ##################################################################################################
+
+
+##################################################################################################
+#cat("\n\nCopy FROM google drive \n")
+#destino = paste(FolderRoot, "/datasets/", dataset_name, sep="")
+#origem = paste("cloud:elaine/Datasets/CrossValidation_WithValidation/", dataset_name, sep="")
+#comando = paste("rclone -v copy ", origem, " ", destino, sep="")
+#cat("\n\n", comando, "\n\n")
+#print(system(comando))
+
 
 ##################################################################################################
 # CONFIG THE FOLDER RESULTS                                                                      #
@@ -132,11 +141,12 @@ source("run.R")
 diretorios = directories(dataset_name, folderResults)
 
 
-##################################################################################################
-#cat("\n Copy partitions from google drive")
+#################################################################################################
+#cat("\n\nCopy partitions from google drive \n")
 #destino = paste(diretorios$folderPartitions, "/", dataset_name, sep="")
-#origem = paste("cloud:elaine/[2021]ResultadosExperimentos/Generate-Partitions-Kohonen/", dataset_name, sep="")
+#origem = paste("cloud:elaine/[2021]ResultadosExperimentos/Generate-Partitions-Random1/", dataset_name, sep="")
 #comando1 = paste("rclone -v copy ", origem, " ", destino, sep="")
+#cat("\n\n", comando1, "\n\n")
 #print(system(comando1))
 
 
@@ -145,7 +155,8 @@ diretorios = directories(dataset_name, folderResults)
 # execute the code and get the total execution time                                              #
 # n_dataset, number_cores, number_folds, folderResults                                           #
 ##################################################################################################
-timeFinal <- system.time(results <- sps(args[1], number_cores, number_folds, folderResults))
+cat("\n\n")
+timeFinal <- system.time(results <- sps(number_dataset, number_cores, number_folds, folderResults))
 print(timeFinal)
 
 # DONT RUN ONLY FOR TEST
@@ -189,7 +200,7 @@ print(system(str4))
 
 ########################################################################################################################
 #cat("\n Copy Results to google drive")
-#destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+#destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/R1/", dataset_name, sep="")
 #comando1 = paste("rclone -v copy ", Folder, " ", destino, sep="")
 #print(system(comando1))
 
@@ -198,7 +209,7 @@ print(system(str4))
 ########################################################################################################################
 #cat("\n Copy Outupt to google drive")
 #origem = diretorios$folderOutputDataset
-#destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/", dataset_name, sep="")
+#destino = paste("cloud:elaine/[2021]ResultadosExperimentos/Best-Partition-Silhouete/R1/", dataset_name, sep="")
 #comando2 = paste("rclone -v copy ", origem, " ", destino, sep="")
 #print(system(comando2))
 
@@ -226,15 +237,15 @@ print(system(str5))
 
 
 ##################################################################################################
-cat("\nDelete folder specific dataset")
-str8 = paste("rm -r ", diretorios$folderSpecificDataset, sep="")
-print(system(str8))
+#cat("\nDelete folder specific dataset")
+#str8 = paste("rm -r ", diretorios$folderSpecificDataset, sep="")
+#print(system(str8))
 
 
 ##################################################################################################
-#cat("\nDelete folder results")
-#str9 = paste("rm -r ", Folder, sep="")
-#print(system(str9))
+cat("\nDelete folder results")
+str9 = paste("rm -r ", Folder, sep="")
+print(system(str9))
 
 
 
