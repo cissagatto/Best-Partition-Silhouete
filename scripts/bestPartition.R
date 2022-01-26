@@ -180,7 +180,7 @@ comuputeSilhouete <- function (ds, resLS, dataset_name, number_folds, folderResu
           b = as.dist(a)
           sil = silhouette(groups_label_space3[,1], b)
           
-          if(is.na(sil)==TRUE){
+          if(all(is.na(sil))){
             cat("\nOne label per group (local partition)")
             
             fold = f
