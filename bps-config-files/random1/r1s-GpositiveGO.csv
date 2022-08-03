@@ -1,7 +1,7 @@
 Config, Value
-Dataset_Path, /home/cissa/Datasets
+Dataset_Path, ~/Best-Partition-Silhouette/Datasets
 Temporary_Path, /dev/shm/r1s-GpositiveGO
-Partitions_Path, /home/cissa/Partitions/HCAA/random1
+Partitions_Path, ~/Best-Partition-Silhouette/Partitions/HCAA/random1
 similarity, random1
 dataset_name, GpositiveGO
 number_dataset, 42
