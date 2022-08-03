@@ -1,0 +1,9 @@
+Config, Value
+Dataset_Path, /home/cissa/Datasets
+Temporary_Path, /dev/shm/r1s-GpositiveGO
+Partitions_Path, /home/cissa/Partitions/HCAA/random1
+similarity, random1
+dataset_name, GpositiveGO
+number_dataset, 42
+number_folds, 10
+number_cores, 1
