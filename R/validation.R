@@ -1,0 +1,427 @@
+##############################################################################
+# BEST PARTITION SILHOUETTE ECC                                              #
+# Copyright (C) 2022                                                         #
+#                                                                            #
+# This code is free software: you can redistribute it and/or modify it under #
+# the terms of the GNU General Public License as published by the Free       #
+# Software Foundation, either version 3 of the License, or (at your option)  #
+# any later version. This code is distributed in the hope that it will be    #
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of     #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General   #
+# Public License for more details.                                           #
+#                                                                            #
+# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri           #
+# Ferrandin | Federal University of Sao Carlos                               #
+# (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos | Computer Department  #
+# (DC: https://site.dc.ufscar.br/) | Program of Post Graduation in Computer  #
+# Science (PPG-CC: http://ppgcc.dc.ufscar.br/) | Bioinformatics and Machine  #
+# Learning Group (BIOMAL: http://www.biomal.ufscar.br/)                      #
+#                                                                            #
+##############################################################################
+
+
+###########################################################################
+#
+###########################################################################
+FolderRoot = "~/Best-Partition-Silhouette"
+FolderScripts = "~/Best-Partition-Silhouette/R"
+
+
+
+
+
+########################################################################
+# FUNCTION ASD                                                          
+#   Objective                                                           
+#       Compute statistics about the partitions                         
+#   Parameters                                                          
+#       ds: specific dataset information                                
+#       dataset_name: dataset name. It is used to save files.           
+#   Return                                                              
+#       Sum, mean, median, standart deviation, max and min partitions   
+########################################################################
+asd <- function(ds,
+                namesLabels,
+                dataset_name,
+                number_dataset, 
+                number_cores, 
+                number_folds, 
+                folderResults){
+  
+  diretorios = directories(dataset_name, folderResults)
+  
+  # function return 
+  retorno = list()
+  library("dplyr")
+  
+  # get the best partitions of the dataset
+  setwd(diretorios$folderResultsDataset)
+  nome = paste("Best-Partitions-Silhouette.csv", sep="")
+  bP = data.frame(read.csv(nome))
+  
+  frequencia = data.frame(count(bP, vars = part))
+  names(frequencia) = c("partition","frequency")
+  
+  setwd(diretorios$folderResultsDataset)
+  write.csv(frequencia, paste(dataset_name, "-frequency-chosed-groups.csv", 
+                              sep=""), row.names = FALSE)
+  
+  # computes statistics
+  soma = apply(bP, 2, sum)
+  media = apply(bP, 2, mean)
+  mediana = apply(bP, 2, median)
+  desvioPadrao = apply(bP, 2, sd)
+  minimo = apply(bP, 2, min)
+  maximo = apply(bP, 2, max)
+  sumario = rbind(soma, media, mediana, desvioPadrao, minimo, maximo)
+  
+  # saves results in the RESULTS folder
+  setwd(diretorios$folderResultsDataset)
+  write.csv(sumario, paste(dataset_name, "-statistic-sumary-best-part.csv", 
+                           sep=""))
+  
+  # function return
+  retorno$sumario = sumario
+  return(retorno)
+  
+  gc()
+  cat("\n#############################################################")
+  cat("\n# Statistics: END                                           #")
+  cat("\n#############################################################")
+  cat("\n\n\n\n")
+}
+
+
+##################################################################################################
+# FUNCTION LABEL SPACE                                                                           #
+#   Objective                                                                                    #
+#       Separates the label space from the rest of the data to be used as input for              #
+#       calculating correlations                                                                 #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       folderResults: folder where to save results                                              #
+#   Return:                                                                                      #
+#       Training set labels space                                                                #
+##################################################################################################
+labelSpace <- function(ds, dataset_name, number_folds, folderResults){
+  
+  retorno = list()
+  
+  # return all fold label space
+  classes = list()
+  
+  # get the directories
+  diretorios = directories(dataset_name, folderResults)
+  
+  # from the first FOLD to the last
+  k = 1
+  while(k<=number_folds){
+    
+    # cat("\n\tFold: ", k)
+    
+    # enter folder train
+    setwd(diretorios$folderCVTR)
+    
+    # get the correct fold cross-validation
+    nome_arquivo = paste(dataset_name, "-Split-Tr-", k, ".csv", sep="")
+    
+    # open the file
+    arquivo = data.frame(read.csv(nome_arquivo))
+    
+    # split label space from input space
+    classes[[k]] = arquivo[,ds$LabelStart:ds$LabelEnd]
+    
+    # get the names labels
+    namesLabels = c(colnames(classes[[k]]))
+    
+    # increment FOLD
+    k = k + 1
+    
+    # garbage collection
+    gc()
+    
+  } # End While of the 10-folds
+  
+  # return results
+  retorno$NamesLabels = namesLabels
+  retorno$Classes = classes
+  return(retorno)
+  
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# FUNCTION LABEL SPACE: END                                                                      #")
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+}
+
+
+
+
+
+###########################################################################
+#
+###########################################################################
+validate <- function (ds,
+                      resLS,
+                      namesLabels,
+                      dataset_name,
+                      number_dataset,
+                      number_cores,
+                      number_folds,
+                      folderResults){
+  
+  
+  ########################################################################
+  #cat("\ndataframe")
+  fold = c(0)
+  part = c(0)
+  maximo = c(0)
+  minimo = c(0)
+  mediana = c(0)
+  media = c(0)
+  primeiroQuadrante = c(0)
+  terceiroQuadrante = c(0)
+  valueSilhouete = c(0)
+  bestPartition = data.frame(fold, part, maximo, minimo,
+                             mediana, media, primeiroQuadrante,
+                             terceiroQuadrante, valueSilhouete)
+  
+  
+  f = 1
+  silhoueteParalel <- foreach(f = 1:number_folds) %dopar% {
+  #while(f<=number_folds){
+    
+    cat("\n=========================================================")
+    cat("\nFold: ", f)
+    cat("\n=========================================================")
+    
+    #######################################################################
+    #cat("\nworkspace")
+    FolderRoot = "~/Best-Partition-Silhouette"
+    FolderScripts = "~/Best-Partition-Silhouette/R"
+    
+    setwd(FolderScripts)
+    source("libraries.R")
+    
+    setwd(FolderScripts)
+    source("utils.R")
+    
+    diretorios <- directories(dataset_name, folderResults)
+    
+    
+    ########################################################################
+    #cat("\nget the space label")
+    espacoDeRotulos = data.frame(resLS$Classes[f])
+    espacoDeRotulos = data.frame(t(espacoDeRotulos))
+    labels = rownames(espacoDeRotulos)
+    espacoDeRotulos = cbind(labels, espacoDeRotulos)
+    espacoDeRotulos = data.frame(espacoDeRotulos[order(espacoDeRotulos$labels, 
+                                                       decreasing = FALSE),])
+    
+    
+    ##################################################################
+    #cat("\nfolders split")
+    FolderSplitOrigem = paste(diretorios$folderPartitions, "/", 
+                              dataset_name, "/Split-", f, sep="")
+    FolderSplitDestino = paste(diretorios$folderResultsDataset, 
+                               "/Split-", f, sep="")
+    if(dir.exists(FolderSplitDestino)==FALSE){dir.create(FolderSplitDestino)}
+    
+    
+    ##################################################################
+    #cat("\nOPEN FILE WITH PARTITION INFORMATION")
+    nome = paste(FolderSplitOrigem, "/fold-", 
+                 f, "-groups-per-partition.csv", sep="")
+    particoes = data.frame(read.csv(nome))
+    
+    
+    ##################################################################
+    # obtendo informações da partição deste split
+    particoes.f = particoes[f,]
+    
+    
+    ##################################################################
+    # PEGANDO O NÚMERO TOTAL DE PARTIÇÕES
+    num.part = nrow(particoes)+1
+    num.groups = particoes.f$num.groups
+    
+    #######################################################################
+    fold = c(0)
+    part = c(0)
+    maximo = c(0)
+    minimo = c(0)
+    mediana = c(0)
+    media = c(0)
+    primeiroQuadrante = c(0)
+    terceiroQuadrante = c(0)
+    valueSilhouete = c(0)
+    Silhouete = data.frame(fold, part, maximo, minimo, mediana, 
+                           media, primeiroQuadrante, terceiroQuadrante, 
+                           valueSilhouete)
+    
+    p = 2
+    while(p<=num.part){
+      
+      cat("\n%%%%%%%%%%%%%%%%%%%%")
+      cat("\nPartition: ", p)
+      cat("\n%%%%%%%%%%%%%%%%%%%%")
+      
+      ##################################################################
+      #cat("\nfolders part")
+      FolderPartOrigem = paste(FolderSplitOrigem, "/Partition-", p, sep="")
+      FolderPartDestino = paste(FolderSplitDestino, "/Partition-", p, sep="")
+      if(dir.exists(FolderPartDestino)==FALSE){dir.create(FolderPartDestino)}
+      
+      ##################################################################
+      #cat("\nabrindo partição")
+      namae = paste(FolderPartOrigem, "/partition-", p, ".csv", sep="")
+      conf_part = data.frame(read.csv(namae))
+      
+      
+      #######################################################################
+      #cat("\njuntando grupos com espaco de rotulos")
+      particao_final = cbind(conf_part, espacoDeRotulos)
+      particao_final = particao_final[,-2]
+      
+      
+      #######################################################################
+      a = dist(espacoDeRotulos[, -1])
+      b = as.dist(a)
+      sil = silhouette(particao_final$group, b)
+      sil = sortSilhouette(sil)
+      
+      
+      #######################################################################
+      setwd(FolderPartDestino)
+      write.csv(sil,
+                paste("silho-fold-", f, "-part-",
+                      p, ".csv", sep = ""),
+                row.names = FALSE)
+      
+      if (all(is.na(sil)) == TRUE) {
+        #cat("\nOne label per group (local partition)\n")
+        fold = f
+        part = p
+        maximo = NA
+        minimo = NA
+        mediana = NA
+        media = NA
+        primeiroQuadrante = NA
+        terceiroQuadrante = NA
+        valueSilhouete = NA
+        Silhouete = rbind(
+          Silhouete,
+          data.frame(
+            fold,
+            part,
+            maximo,
+            minimo,
+            mediana,
+            media,
+            primeiroQuadrante,
+            terceiroQuadrante,
+            valueSilhouete
+          )
+        )
+        setwd(FolderPartDestino)
+        write.csv(sil,
+                  paste("silho-fold-", f, "-part-",
+                        p, ".csv", sep = ""),
+                  row.names = FALSE)
+        
+      } else {
+        #cat("\nMore than one label per group\n")
+        
+        setwd(FolderPartDestino)
+        pdf(
+          paste("silho-fold-", f, "-part-", p, ".pdf", sep = ""),
+          width = 10,
+          height = 8
+        )
+        print(plot(sil))
+        dev.off()
+        cat("\n")
+        
+        setwd(FolderPartDestino)
+        pdf(
+          paste("fviz-silh-fold-", f, "-part-", p, ".pdf", sep = ""),
+          width = 10,
+          height = 8
+        )
+        print(fviz_silhouette(sil))
+        dev.off()
+        cat("\n")
+        
+        # Summary of silhouette analysis
+        si.sum = summary(sil)
+        res.si.sum = unlist(si.sum)
+        
+        fold = f
+        part = p
+        maximo = res.si.sum$si.summary.Max.
+        minimo = res.si.sum$si.summary.Min.
+        mediana = res.si.sum$si.summary.Median
+        media = res.si.sum$si.summary.Mean
+        primeiroQuadrante = res.si.sum$`si.summary.1st Qu.`
+        terceiroQuadrante = res.si.sum$`si.summary.3rd Qu.`
+        valueSilhouete = res.si.sum$avg.width
+        Silhouete = rbind(
+          Silhouete,
+          data.frame(
+            fold,
+            part,
+            maximo,
+            minimo,
+            mediana,
+            media,
+            primeiroQuadrante,
+            terceiroQuadrante,
+            valueSilhouete
+          )
+        )
+        
+        setwd(FolderSplitDestino)
+        write.csv(Silhouete[-1, ],
+                  paste("fold-", f, "-silho.csv", sep = ""),
+                  row.names = FALSE)
+        
+      } # fim do if
+ 
+      p = p + 1
+      gc() 
+    } # fim da particao
+    
+    Silhouete = Silhouete[-1,]
+    indice = as.numeric(which.max(Silhouete$valueSilhouete))
+    silhouete2 = Silhouete[indice,]
+    bestPartition = rbind(bestPartition, silhouete2)
+    
+    #f = f + 1
+    gc()
+    
+  } # fim do fold
+  
+  
+  setwd(diretorios$folderResultsDataset)
+  write.csv(bestPartition[-1,], "Best-Partitions-Silhouette.csv", row.names = FALSE)
+  
+  
+  
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# END COMPUTE SILHOUETE                                                                          #")
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+}
+
+
+
+
+
+
+#######################################################################
+# Please, any errors, contact us: elainececiliagatto@gmail.com        #
+# Thank you very much!                                                #
+#######################################################################
