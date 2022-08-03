@@ -1,7 +1,7 @@
 Config, Value
-Dataset_Path, /home/cissa/Datasets
+Dataset_Path, ~/Best-Partition-Silhouette/Datasets
 Temporary_Path, /dev/shm/js-GpositiveGO
-Partitions_Path, /home/cissa/Partitions/HCAA/jaccard
+Partitions_Path, ~/Best-Partition-Silhouette/Partitions/HCAA/jaccard
 similarity, jaccard
 dataset_name, GpositiveGO
 number_dataset, 42
