@@ -80,7 +80,7 @@ args <- commandArgs(TRUE)
 # from csv file                                                               #
 ###############################################################################
 
-#config_file = "~/Best-Partition-Silhouette/bps-config-files/jaccard/js-GpositiveGO.csv"
+#config_file = "/home/cissa/Best-Partition-Silhouette/bps-config-files/jaccard/js-GpositiveGO.csv"
 
 config_file <- args[1]
 
@@ -279,7 +279,7 @@ timeFinal <- system.time(results <- executaBPS(ds,
 
 print(timeFinal)
 result_set <- t(data.matrix(timeFinal))
-setwd(diretorios$folderResultsDataset)
+setwd(diretorios$folderOutputDataset)
 write.csv(result_set, "Runtime.csv")
 
 
@@ -287,32 +287,32 @@ print(system(paste("rm -r ", diretorios$folderDatasets, sep="")))
 
 print(system(paste("rm -r ", diretorios$folderPartitions, sep="")))
 
-# 
-# # cat("\n####################################################################")
-# # cat("\n# Compress folders and files                                       #")
-# # cat("\n####################################################################\n\n")
-# # str_a <- paste("tar -zcf ", diretorios$folderResultsDataset, "/", dataset_name,
-# #                "-", similarity, "-results-bps-e.tar.gz ",
-# #                diretorios$folderResultsDataset, sep = "")
-# # print(system(str_a))
-# 
-#  
-# # cat("\n####################################################################")
-# # cat("\n# Copy to root folder                                              #")
-# # cat("\n####################################################################\n\n")
-# # folder = paste(FolderRoot, "/Output", sep="")
-# # if(dir.exists(folder)==FALSE){dir.create(folder)}
-# # str_b <- paste("cp -r ", diretorios$folderResultsDataset, "/", dataset_name,
-# #                "-", similarity, "-results-bps-e.tar.gz ", folder, sep = "")
-# # print(system(str_b))
+
+cat("\n####################################################################")
+cat("\n# Compress folders and files                                       #")
+cat("\n####################################################################\n\n")
+str_a <- paste("tar -zcf ", diretorios$folderResults, "/", dataset_name,
+               "-", similarity, "-results-bps-e.tar.gz ",
+               diretorios$folderResults, sep = "")
+print(system(str_a))
+
+
+cat("\n####################################################################")
+cat("\n# Copy to root folder                                              #")
+cat("\n####################################################################\n\n")
+folder = paste(FolderRoot, "/Reports", sep="")
+if(dir.exists(folder)==FALSE){dir.create(folder)}
+str_b <- paste("cp -r ", diretorios$folderResults, "/", dataset_name,
+               "-", similarity, "-results-bps-e.tar.gz ", folder, sep = "")
+print(system(str_b))
 
 
 # cat("\n####################################################################")
 # cat("\n# COPY TO GOOGLE DRIVE                                             #")
 # cat("\n####################################################################\n\n")
-# origem = diretorios$folderResultsDataset
+# origem = diretorios$folderOutputDataset
 # destino = paste("nuvem:ECC/Best-Partitions/", similarity,
-#                "/Silhouette/", dataset_name, "/Partitions/", sep="")
+#                "/Silhouette/", dataset_name, "/Output/", sep="")
 # comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
 # cat("\n", comando1, "\n")
 # a = print(system(comando1))
@@ -320,6 +320,23 @@ print(system(paste("rm -r ", diretorios$folderPartitions, sep="")))
 # if(a != 0) {
 # stop("Erro RCLONE")
 # quit("yes")
+# }
+
+
+
+# cat("\n####################################################################")
+# cat("\n# COPY TO GOOGLE DRIVE                                             #")
+# cat("\n####################################################################\n\n")
+# origem = diretorios$folderValidate
+# destino = paste("nuvem:ECC/Best-Partitions/", similarity,
+#                 "/Silhouette/", dataset_name, "/Validate/", sep="")
+# comando1 = paste("rclone -P copy ", origem, " ", destino, sep="")
+# cat("\n", comando1, "\n")
+# a = print(system(comando1))
+# a = as.numeric(a)
+# if(a != 0) {
+#   stop("Erro RCLONE")
+#   quit("yes")
 # }
 
 

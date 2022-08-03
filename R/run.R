@@ -117,6 +117,20 @@ executaBPS <- function(ds,
                                            number_cores,
                                            number_folds,
                                            folderResults))
+  
+  
+  cat("\n\n##########################################################")
+  cat("\n# RUN: separando as partições                              #")
+  cat("\n############################################################\n\n")
+  timeBP = system.time(resBP <- bestPartitions(ds,
+                                           resLS,
+                                           namesLabels,
+                                           dataset_name,
+                                           number_dataset,
+                                           number_cores,
+                                           number_folds,
+                                           folderResults))
+  
 
   cat("\n\n##########################################################")
   cat("\n# RUN: Statistics:                                         #")
@@ -133,8 +147,8 @@ executaBPS <- function(ds,
   cat("\n\n##########################################################")
   cat("\n# RUN: Save Runtime                                        #")
   cat("\n############################################################\n\n")
-  Runtime = rbind(timeVAl, timeASD)
-  setwd(diretorios$folderResultsDataset)
+  Runtime = rbind(timeVAl, timeBP, timeASD)
+  setwd(diretorios$folderOutputDataset)
   name2 = paste(dataset_name, "Runtime-BPS-ECC.csv", sep="")
   write.csv(Runtime, name2)
 

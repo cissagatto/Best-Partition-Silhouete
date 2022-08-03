@@ -61,27 +61,6 @@ directories <- function(dataset_name, folderResults){
     n_folderResults = length(dir_folderResults)
   }
   
-  
-  #############################################################################
-  # UTILS FOLDER:                                                             #
-  # Get information about the files within folder utils that already exists   #
-  # in the project. It's needed to run CLUS framework and convert CSV files   #
-  # in ARFF files correctly.                                                  #
-  # "/home/[user]/Partitions-Kohonen/utils"                                   #
-  #############################################################################
-  folderUtils = paste(FolderRoot, "/Utils", sep="")
-  if(dir.exists(folderUtils) == TRUE){
-    setwd(folderUtils)
-    dir_folderUtils = dir(folderUtils)
-    n_folderUtils = length(dir_folderUtils)
-  } else {
-    dir.create(folderUtils)
-    setwd(folderUtils)
-    dir_folderUtils = dir(folderUtils)
-    n_folderUtils = length(dir_folderUtils)
-  }
-  
-  
   #############################################################################
   # DATASETS FOLDER:                                                          #
   # Get the information within DATASETS folder that already exists in the     #
@@ -100,6 +79,19 @@ directories <- function(dataset_name, folderResults){
     setwd(folderDatasets)
     dir_folderDatasets = dir(folderDatasets)
     n_folderDatasets = length(dir_folderDatasets)
+  }
+  
+  
+  folderValidate = paste(folderResults, "/Validation", sep="")
+  if(dir.exists(folderValidate) == TRUE){
+    setwd(folderValidate)
+    dir_folderValidate = dir(folderValidate)
+    n_folderValidate = length(dir_folderValidate)
+  } else {
+    dir.create(folderValidate)
+    setwd(folderValidate)
+    dir_folderValidate = dir(folderValidate)
+    n_folderValidate = length(dir_folderValidate)
   }
   
   
@@ -242,17 +234,19 @@ directories <- function(dataset_name, folderResults){
   # Path to the results for the specific dataset that is running              #                                                           
   # "/dev/shm/res/birds"                                                      #
   #############################################################################
-  folderResultsDataset = paste(folderResults, "/", dataset_name, sep="")
-  if(dir.exists(folderResultsDataset) == TRUE){
-    setwd(folderResultsDataset)
-    dir_folderResultsDataset = dir(folderResultsDataset)
-    n_folderResultsDataset = length(dir_folderResultsDataset)
-  } else {
-    dir.create(folderResultsDataset)
-    setwd(folderResultsDataset)
-    dir_folderResultsDataset = dir(folderResultsDataset)
-    n_folderResultsDataset = length(dir_folderResultsDataset)
-  }
+  # folderResultsDataset = paste(folderResults, "/", dataset_name, sep="")
+  # if(dir.exists(folderResultsDataset) == TRUE){
+  #   setwd(folderResultsDataset)
+  #   dir_folderResultsDataset = dir(folderResultsDataset)
+  #   n_folderResultsDataset = length(dir_folderResultsDataset)
+  # } else {
+  #   dir.create(folderResultsDataset)
+  #   setwd(folderResultsDataset)
+  #   dir_folderResultsDataset = dir(folderResultsDataset)
+  #   n_folderResultsDataset = length(dir_folderResultsDataset)
+  # }
+  
+  
   
   #############################################################################
   # RESULTS PARTITIONS FOLDER:                                                #
@@ -313,8 +307,8 @@ directories <- function(dataset_name, folderResults){
   #############################################################################
   # RETURN ALL PATHS                                                          #
   #############################################################################
+  retorno$folderValidate = folderValidate
   retorno$folderResults = folderResults
-  retorno$folderUtils = folderUtils
   retorno$folderDatasets = folderDatasets
   retorno$folderSpecificDataset = folderSpecificDataset
   retorno$folderLabelSpace = folderLabelSpace
@@ -326,14 +320,14 @@ directories <- function(dataset_name, folderResults){
   retorno$folderPartitions = folderPartitions
   retorno$folderOutput = folderOutput
   retorno$folderOutputDataset = folderOutputDataset
-  retorno$folderResultsDataset = folderResultsDataset
+  #retorno$folderResultsDataset = folderResultsDataset
   
   
   #############################################################################
   # RETURN ALL DIRS                                                           #
   #############################################################################
+  retorno$dir_folderValidate = dir_folderValidate
   retorno$dir_folderResults = dir_folderResults
-  retorno$dir_folderUtils = dir_folderUtils
   retorno$dir_folderDatasets = dir_folderDatasets
   retorno$dir_folderSpecificDataset = dir_folderSpecificDataset
   retorno$dir_folderLabelSpace = dir_folderLabelSpace
@@ -345,14 +339,14 @@ directories <- function(dataset_name, folderResults){
   retorno$dir_folderPartitions = dir_folderPartitions
   retorno$dir_folderOutput = dir_folderOutput
   retorno$dir_folderOutputDataset = dir_folderOutputDataset
-  retorno$dir_folderResultsDataset = dir_folderResultsDataset
+  #retorno$dir_folderResultsDataset = dir_folderResultsDataset
   
   
   #############################################################################
   # RETURN ALL LENGHTS                                                        #
   #############################################################################
+  retorno$n_folderValidate = n_folderValidate
   retorno$n_folderResults = n_folderResults
-  retorno$n_folderUtils = n_folderUtils
   retorno$n_folderDatasets = n_folderDatasets
   retorno$n_folderSpecificDataset = n_folderSpecificDataset
   retorno$n_folderLabelSpace = n_folderLabelSpace
@@ -364,7 +358,7 @@ directories <- function(dataset_name, folderResults){
   retorno$n_folderPartitions = n_folderPartitions
   retorno$n_folderOutput = n_folderOutput
   retorno$n_folderOutputDataset = n_folderOutputDataset
-  retorno$n_folderResultsDataset = n_folderResultsDataset
+  #retorno$n_folderResultsDataset = n_folderResultsDataset
   
   return(retorno)
   gc()

@@ -53,16 +53,16 @@ asd <- function(ds,
   # function return 
   retorno = list()
   library("dplyr")
-  
+
   # get the best partitions of the dataset
-  setwd(diretorios$folderResultsDataset)
-  nome = paste("Best-Partitions-Silhouette.csv", sep="")
+  nome = paste(diretorios$folderOutputDataset, "/", 
+        dataset_name, "-Best-Silhouete.csv", sep="")
   bP = data.frame(read.csv(nome))
   
   frequencia = data.frame(count(bP, vars = part))
   names(frequencia) = c("partition","frequency")
   
-  setwd(diretorios$folderResultsDataset)
+  setwd(diretorios$folderOutputDataset)
   write.csv(frequencia, paste(dataset_name, "-frequency-chosed-groups.csv", 
                               sep=""), row.names = FALSE)
   
@@ -76,7 +76,7 @@ asd <- function(ds,
   sumario = rbind(soma, media, mediana, desvioPadrao, minimo, maximo)
   
   # saves results in the RESULTS folder
-  setwd(diretorios$folderResultsDataset)
+  setwd(diretorios$folderOutputDataset)
   write.csv(sumario, paste(dataset_name, "-statistic-sumary-best-part.csv", 
                            sep=""))
   
@@ -92,19 +92,19 @@ asd <- function(ds,
 }
 
 
-##################################################################################################
-# FUNCTION LABEL SPACE                                                                           #
-#   Objective                                                                                    #
-#       Separates the label space from the rest of the data to be used as input for              #
-#       calculating correlations                                                                 #
-#   Parameters                                                                                   #
-#       ds: specific dataset information                                                         #
-#       dataset_name: dataset name. It is used to save files.                                    #
-#       number_folds: number of folds created                                                    #
-#       folderResults: folder where to save results                                              #
-#   Return:                                                                                      #
-#       Training set labels space                                                                #
-##################################################################################################
+#######################################################################
+# FUNCTION LABEL SPACE                                               
+#   Objective                                                        
+#       Separates the label space from the rest of the data to be used
+#     as input for calculating correlations
+#   Parameters                             
+#       ds: specific dataset information   
+#       dataset_name: dataset name. It is used to save files.
+#       number_folds: number of folds created                
+#       folderResults: folder where to save results          
+#   Return:                                                  
+#       Training set labels space                            
+#############################################################
 labelSpace <- function(ds, dataset_name, number_folds, folderResults){
   
   retorno = list()
@@ -150,13 +150,100 @@ labelSpace <- function(ds, dataset_name, number_folds, folderResults){
   return(retorno)
   
   gc()
-  cat("\n##################################################################################################")
-  cat("\n# FUNCTION LABEL SPACE: END                                                                      #")
-  cat("\n##################################################################################################")
+  cat("\n################################################################")
+  cat("\n# FUNCTION LABEL SPACE: END                                    #")
+  cat("\n################################################################")
   cat("\n\n\n\n")
 }
 
 
+###########################################################################
+#
+###########################################################################
+bestPartitions <- function(ds,
+                           resLS,
+                           namesLabels,
+                           dataset_name,
+                           number_dataset,
+                           number_cores,
+                           number_folds,
+                           folderResults){
+  
+  #######################################################################
+  #cat("\nworkspace")
+  FolderRoot = "~/Best-Partition-Silhouette"
+  FolderScripts = "~/Best-Partition-Silhouette/R"
+  
+  setwd(FolderScripts)
+  source("libraries.R")
+  
+  setwd(FolderScripts)
+  source("utils.R")
+  
+  diretorios <- directories(dataset_name, folderResults)
+  
+  todos = data.frame()
+  best.part = data.frame()
+  
+  f = 1
+  while(f<=number_folds){
+    
+    cat("\n=========================================================")
+    cat("\nFold: ", f)
+    cat("\n=========================================================")
+    
+    ##################################################################
+    #cat("\nfolders split")
+    FolderSplitOrigem = paste(diretorios$folderValidate, "/Split-", f, sep="")
+    FolderSplitDestino = paste(diretorios$folderOutputDataset, 
+                               "/Split-", f, sep="")
+    FolderPSO = paste(diretorios$folderPartitions, "/", dataset_name, 
+                      "/Split-", f, sep="")
+    
+    ##################################################################
+    setwd(FolderSplitOrigem)
+    nome = paste("fold-", f, "-silho.csv", sep="")
+    silho = data.frame(read.csv(nome))
+    
+    ##################################################################
+    todos = rbind(todos, silho)
+    
+    ##################################################################
+    indice = as.numeric(which.max(silho$valueSilhouete))
+    silhouette = silho[indice,]
+    best.part = rbind(best.part, silhouette)
+    
+    best.part2 = best.part[f,]
+    
+    ##################################################################
+    FolderP = paste(diretorios$folderPartitions, "/", dataset_name, 
+          "/Split-", f, sep="")
+    
+    FolderPP = paste(FolderP, "/Partition-", as.numeric(best.part2$part), sep="")
+    
+    FolderD = paste(diretorios$folderOutputDataset,
+                    "/Split-", f, sep="")
+    if(dir.exists(FolderD)==FALSE){dir.create(FolderD)}
+    
+    print(system(paste("cp -r ", FolderPP , " ",  FolderD, sep="")))
+    
+    nome = paste(FolderP, "/fold-", f, "-groups-per-partition.csv", sep="")
+    nome2 = paste("cp -r ", nome, " ", FolderD, sep="")
+    print(system(nome2))
+    
+    f = f + 1
+    gc()
+    
+  }
+  
+  setwd(diretorios$folderOutputDataset)
+  write.csv(todos, paste(dataset_name, "-All-Silhouete.csv", sep=""),
+            row.names = FALSE)
+  
+  write.csv(best.part, paste(dataset_name, "-Best-Silhouete.csv", sep=""),
+            row.names = FALSE)
+  
+}
 
 
 
@@ -171,22 +258,6 @@ validate <- function (ds,
                       number_cores,
                       number_folds,
                       folderResults){
-  
-  
-  ########################################################################
-  #cat("\ndataframe")
-  fold = c(0)
-  part = c(0)
-  maximo = c(0)
-  minimo = c(0)
-  mediana = c(0)
-  media = c(0)
-  primeiroQuadrante = c(0)
-  terceiroQuadrante = c(0)
-  valueSilhouete = c(0)
-  bestPartition = data.frame(fold, part, maximo, minimo,
-                             mediana, media, primeiroQuadrante,
-                             terceiroQuadrante, valueSilhouete)
   
   
   f = 1
@@ -225,7 +296,7 @@ validate <- function (ds,
     #cat("\nfolders split")
     FolderSplitOrigem = paste(diretorios$folderPartitions, "/", 
                               dataset_name, "/Split-", f, sep="")
-    FolderSplitDestino = paste(diretorios$folderResultsDataset, 
+    FolderSplitDestino = paste(diretorios$folderValidate, 
                                "/Split-", f, sep="")
     if(dir.exists(FolderSplitDestino)==FALSE){dir.create(FolderSplitDestino)}
     
@@ -311,45 +382,30 @@ validate <- function (ds,
         primeiroQuadrante = NA
         terceiroQuadrante = NA
         valueSilhouete = NA
-        Silhouete = rbind(
-          Silhouete,
-          data.frame(
-            fold,
-            part,
-            maximo,
-            minimo,
-            mediana,
-            media,
-            primeiroQuadrante,
-            terceiroQuadrante,
-            valueSilhouete
-          )
-        )
+        Silhouete = rbind(Silhouete, data.frame(fold, part, 
+                                                maximo, minimo, 
+                                                mediana, media,
+                                                primeiroQuadrante,
+                                                terceiroQuadrante,
+                                                valueSilhouete))
+        
         setwd(FolderPartDestino)
-        write.csv(sil,
-                  paste("silho-fold-", f, "-part-",
-                        p, ".csv", sep = ""),
-                  row.names = FALSE)
+        write.csv(sil, paste("silho-fold-", f, "-part-", p, 
+                             ".csv", sep = ""), row.names = FALSE)
         
       } else {
         #cat("\nMore than one label per group\n")
         
         setwd(FolderPartDestino)
-        pdf(
-          paste("silho-fold-", f, "-part-", p, ".pdf", sep = ""),
-          width = 10,
-          height = 8
-        )
+        pdf(paste("silho-fold-", f, "-part-", p, ".pdf", sep = ""), 
+            width = 10, height = 8)
         print(plot(sil))
         dev.off()
         cat("\n")
         
         setwd(FolderPartDestino)
-        pdf(
-          paste("fviz-silh-fold-", f, "-part-", p, ".pdf", sep = ""),
-          width = 10,
-          height = 8
-        )
+        pdf(paste("fviz-silh-fold-", f, "-part-", p, ".pdf", sep = ""), 
+            width = 10,height = 8)
         print(fviz_silhouette(sil))
         dev.off()
         cat("\n")
@@ -367,24 +423,15 @@ validate <- function (ds,
         primeiroQuadrante = res.si.sum$`si.summary.1st Qu.`
         terceiroQuadrante = res.si.sum$`si.summary.3rd Qu.`
         valueSilhouete = res.si.sum$avg.width
-        Silhouete = rbind(
-          Silhouete,
-          data.frame(
-            fold,
-            part,
-            maximo,
-            minimo,
-            mediana,
-            media,
-            primeiroQuadrante,
-            terceiroQuadrante,
-            valueSilhouete
-          )
-        )
+        Silhouete = rbind(Silhouete, data.frame(fold, part, 
+                                                maximo, minimo, 
+                                                mediana, media,
+                                                primeiroQuadrante,
+                                                terceiroQuadrante,
+                                                valueSilhouete))
         
-        setwd(FolderSplitDestino)
-        write.csv(Silhouete[-1, ],
-                  paste("fold-", f, "-silho.csv", sep = ""),
+        write.csv(Silhouete[-1, ], paste(FolderSplitDestino, "/fold-", 
+                                         f, "-silho.csv", sep = ""), 
                   row.names = FALSE)
         
       } # fim do if
@@ -393,21 +440,11 @@ validate <- function (ds,
       gc() 
     } # fim da particao
     
-    Silhouete = Silhouete[-1,]
-    indice = as.numeric(which.max(Silhouete$valueSilhouete))
-    silhouete2 = Silhouete[indice,]
-    bestPartition = rbind(bestPartition, silhouete2)
-    
     #f = f + 1
     gc()
     
   } # fim do fold
-  
-  
-  setwd(diretorios$folderResultsDataset)
-  write.csv(bestPartition[-1,], "Best-Partitions-Silhouette.csv", row.names = FALSE)
-  
-  
+ 
   
   gc()
   cat("\n##################################################################################################")
@@ -415,9 +452,6 @@ validate <- function (ds,
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
-
-
-
 
 
 
