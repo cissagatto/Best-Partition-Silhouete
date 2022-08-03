@@ -1,7 +1,7 @@
 Config, Value
-Dataset_Path, /home/cissa/Datasets
+Dataset_Path, ~/Best-Partition-Silhouette/Datasets
 Temporary_Path, /dev/shm/rs-GpositiveGO
-Partitions_Path, /home/cissa/Partitions/HCAA/rogers
+Partitions_Path, ~/Best-Partition-Silhouette/Partitions/HCAA/rogers
 similarity, rogers
 dataset_name, GpositiveGO
 number_dataset, 42
