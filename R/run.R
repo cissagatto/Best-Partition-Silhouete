@@ -35,12 +35,7 @@ FolderScripts = "~/Best-Partition-Silhouette/R"
 # number_folds: number of folds for cross validation
 # delete: if you want, or not, to delete all folders and files generated
 ########################################################################
-executaBPS <- function(ds,
-                        dataset_name,
-                        number_dataset,
-                        number_cores,
-                        number_folds,
-                        folderResults){
+executaBPS <- function(parameters){
 
 
   ##########################################################################
@@ -57,9 +52,11 @@ executaBPS <- function(ds,
   setwd(FolderScripts)
   source("validation.R")
 
-  diretorios <- directories(dataset_name, folderResults)
+  diretorios <- directories(parameters$Dataset.Name, 
+                            parameters$Folder.Results,
+                            parameters$Similarity)
 
-  if(number_cores == 0){
+  if(parameters$Number.Cores == 0){
 
     cat("\n\n##########################################################")
     cat("\n# Zero is a disallowed value for number_cores. Please      #")
@@ -68,7 +65,7 @@ executaBPS <- function(ds,
 
   } else {
 
-    cl <- parallel::makeCluster(number_cores)
+    cl <- parallel::makeCluster(parameters$Number.Cores)
     doParallel::registerDoParallel(cl)
     print(cl)
 
@@ -78,7 +75,7 @@ executaBPS <- function(ds,
       cat("\n############################################################\n\n")
     } else {
       cat("\n\n############################################################")
-      cat("\n# Running in parallel with ", number_cores, " cores!         #")
+      cat("\n# Running in parallel with ", parameters$Number.Cores, " cores!         #")
       cat("\n##############################################################\n\n")
     }
   }
@@ -90,7 +87,7 @@ executaBPS <- function(ds,
   cat("\n\n##########################################################")
   cat("\n# RUN: get labels                                          #")
   cat("\n############################################################\n\n")
-  arquivo = paste(diretorios$folderNamesLabels, "/" ,
+  arquivo = paste(parameters$Folders$folderNamesLabels, "/" ,
                   dataset_name, "-NamesLabels.csv", sep="")
   namesLabels = data.frame(read.csv(arquivo))
   colnames(namesLabels) = c("id", "labels")
@@ -100,48 +97,26 @@ executaBPS <- function(ds,
   cat("\n\n###################################################################")
   cat("\n# ====> RUN: Get the label space                                    #")
   cat("\n#####################################################################\n\n")
-  timeLabelSpace = system.time(resLS <- labelSpace(ds,
-                                                   dataset_name,
-                                                   number_folds,
-                                                   folderResults))
+  timeLabelSpace = system.time(resLS <- labelSpace(parameters))
+  parameters$resLS = resLS
   
 
   cat("\n\n##########################################################")
   cat("\n# RUN: validate                                             #")
   cat("\n############################################################\n\n")
-  timeVAl = system.time(resVal <- validate(ds,
-                                           resLS,
-                                           namesLabels,
-                                           dataset_name,
-                                           number_dataset,
-                                           number_cores,
-                                           number_folds,
-                                           folderResults))
+  timeVAl = system.time(resVal <- validate(parameters))
   
   
   cat("\n\n##########################################################")
   cat("\n# RUN: separando as partições                              #")
   cat("\n############################################################\n\n")
-  timeBP = system.time(resBP <- bestPartitions(ds,
-                                           resLS,
-                                           namesLabels,
-                                           dataset_name,
-                                           number_dataset,
-                                           number_cores,
-                                           number_folds,
-                                           folderResults))
+  timeBP = system.time(resBP <- bestPartitions(parameters))
   
 
   cat("\n\n##########################################################")
   cat("\n# RUN: Statistics:                                         #")
   cat("\n############################################################\n\n")
-  timeASD = system.time(resASD <- asd(ds,
-                                      namesLabels,
-                                      dataset_name,
-                                      number_dataset,
-                                      number_cores,
-                                      number_folds,
-                                      folderResults))
+  timeASD = system.time(resASD <- asd(parameters))
 
 
   cat("\n\n##########################################################")

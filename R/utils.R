@@ -40,7 +40,7 @@ FolderScripts = "~/Best-Partition-Silhouette/R"
 #   Return:                                                              
 #      All path directories                                              
 #########################################################################
-directories <- function(dataset_name, folderResults){
+directories <- function(dataset_name, folderResults, similarity){
   
   retorno = list()
   
@@ -230,25 +230,6 @@ directories <- function(dataset_name, folderResults){
   
   
   #############################################################################
-  # RESULTS DATASET FOLDER:                                                   #
-  # Path to the results for the specific dataset that is running              #                                                           
-  # "/dev/shm/res/birds"                                                      #
-  #############################################################################
-  # folderResultsDataset = paste(folderResults, "/", dataset_name, sep="")
-  # if(dir.exists(folderResultsDataset) == TRUE){
-  #   setwd(folderResultsDataset)
-  #   dir_folderResultsDataset = dir(folderResultsDataset)
-  #   n_folderResultsDataset = length(dir_folderResultsDataset)
-  # } else {
-  #   dir.create(folderResultsDataset)
-  #   setwd(folderResultsDataset)
-  #   dir_folderResultsDataset = dir(folderResultsDataset)
-  #   n_folderResultsDataset = length(dir_folderResultsDataset)
-  # }
-  
-  
-  
-  #############################################################################
   # RESULTS PARTITIONS FOLDER:                                                #
   # Folder to store the results from partitioning the label correlations      #
   # "/dev/shm/res/birds/Partitions"                                           #
@@ -275,7 +256,7 @@ directories <- function(dataset_name, folderResults){
   # Therefore, OUTPUT folder will be used as INPUT folder in next phase.      #
   # "/home/[user]/Partitions-Kohonen/Output"                                  #
   #############################################################################
-  folderOutput = paste(FolderRoot, "/Output", sep="")
+  folderOutput = paste(folderResults, "/Output", sep="")
   if(dir.exists(folderOutput) == TRUE){
     setwd(folderOutput)
     dir_folderOutput = dir(folderOutput)
@@ -287,12 +268,30 @@ directories <- function(dataset_name, folderResults){
     n_folderOutput = length(dir_folderOutput)
   }
   
+  
   #############################################################################
   # OUTPUT DATASET FOLDER:                                                    #
   # Folder to the specific dataset                                            #
   # "/home/[user]/Partitions-Kohonen/Output/birds"                            #
   #############################################################################
-  folderOutputDataset = paste(folderOutput, "/", dataset_name, sep="")
+  folderOutputSimilarity = paste(folderOutput, "/", similarity, sep="")
+  if(dir.exists(folderOutputSimilarity) == TRUE){
+    setwd(folderOutputSimilarity)
+    dir_folderOutputSimilarity = dir(folderOutputSimilarity)
+    n_folderOutputSimilarity = length(dir_folderOutputSimilarity)
+  } else {
+    dir.create(folderOutputSimilarity)
+    setwd(folderOutputSimilarity)
+    dir_folderOutputSimilarity = dir(folderOutputSimilarity)
+    n_folderOutputSimilarity = length(dir_folderOutputSimilarity)
+  }
+  
+  #############################################################################
+  # OUTPUT DATASET FOLDER:                                                    #
+  # Folder to the specific dataset                                            #
+  # "/home/[user]/Partitions-Kohonen/Output/birds"                            #
+  #############################################################################
+  folderOutputDataset = paste(folderOutputSimilarity, "/", dataset_name, sep="")
   if(dir.exists(folderOutputDataset) == TRUE){
     setwd(folderOutputDataset)
     dir_folderOutputDataset = dir(folderOutputDataset)
@@ -308,6 +307,7 @@ directories <- function(dataset_name, folderResults){
   # RETURN ALL PATHS                                                          #
   #############################################################################
   retorno$folderValidate = folderValidate
+  retorno$folderOutputSimilarity = folderOutputSimilarity
   retorno$folderResults = folderResults
   retorno$folderDatasets = folderDatasets
   retorno$folderSpecificDataset = folderSpecificDataset
@@ -327,6 +327,7 @@ directories <- function(dataset_name, folderResults){
   # RETURN ALL DIRS                                                           #
   #############################################################################
   retorno$dir_folderValidate = dir_folderValidate
+  retorno$dir_folderOutputSimilarity = dir_folderOutputSimilarity
   retorno$dir_folderResults = dir_folderResults
   retorno$dir_folderDatasets = dir_folderDatasets
   retorno$dir_folderSpecificDataset = dir_folderSpecificDataset
@@ -346,6 +347,7 @@ directories <- function(dataset_name, folderResults){
   # RETURN ALL LENGHTS                                                        #
   #############################################################################
   retorno$n_folderValidate = n_folderValidate
+  retorno$n_folderOutputSimilarity = n_folderOutputSimilarity
   retorno$n_folderResults = n_folderResults
   retorno$n_folderDatasets = n_folderDatasets
   retorno$n_folderSpecificDataset = n_folderSpecificDataset
@@ -379,7 +381,21 @@ directories <- function(dataset_name, folderResults){
 #   Return:                                                  
 #       Training set labels space                            
 #######################################################################
-labelSpace <- function(ds, dataset_name, number_folds, folderResults){
+
+#######################################################################
+# FUNCTION LABEL SPACE                                               
+#   Objective                                                        
+#       Separates the label space from the rest of the data to be used
+#     as input for calculating correlations
+#   Parameters                             
+#       ds: specific dataset information   
+#       dataset_name: dataset name. It is used to save files.
+#       number_folds: number of folds created                
+#       folderResults: folder where to save results          
+#   Return:                                                  
+#       Training set labels space                            
+#############################################################
+labelSpace <- function(parameters){
   
   retorno = list()
   
@@ -387,19 +403,21 @@ labelSpace <- function(ds, dataset_name, number_folds, folderResults){
   classes = list()
   
   # get the directories
-  diretorios = directories(dataset_name, folderResults)
+  diretorios <- directories(parameters$Dataset.Name, 
+                            parameters$Folder.Results,
+                            parameters$Similarity)
   
   # from the first FOLD to the last
   k = 1
-  while(k<=number_folds){
+  while(k<=parameters$Number.Folds){
     
     # cat("\n\tFold: ", k)
     
     # enter folder train
-    setwd(diretorios$folderCVTR)
+    setwd(parameters$Folders$folderCVTR)
     
     # get the correct fold cross-validation
-    nome_arquivo = paste(dataset_name, "-Split-Tr-", k, ".csv", sep="")
+    nome_arquivo = paste(parameters$Dataset.Name, "-Split-Tr-", k, ".csv", sep="")
     
     # open the file
     arquivo = data.frame(read.csv(nome_arquivo))
@@ -411,10 +429,10 @@ labelSpace <- function(ds, dataset_name, number_folds, folderResults){
     namesLabels = c(colnames(classes[[k]]))
     
     # increment FOLD
-    k = k + 1 
+    k = k + 1
     
     # garbage collection
-    gc() 
+    gc()
     
   } # End While of the 10-folds
   
@@ -424,11 +442,12 @@ labelSpace <- function(ds, dataset_name, number_folds, folderResults){
   return(retorno)
   
   gc()
-  cat("\n##########################################################")
-  cat("\n# FUNCTION LABEL SPACE: END                              #") 
-  cat("\n##########################################################")
+  cat("\n################################################################")
+  cat("\n# FUNCTION LABEL SPACE: END                                    #")
+  cat("\n################################################################")
   cat("\n\n\n\n")
 }
+
 
 
 #######################################################################

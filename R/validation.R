@@ -36,34 +36,31 @@ FolderScripts = "~/Best-Partition-Silhouette/R"
 #       Compute statistics about the partitions                         
 #   Parameters                                                          
 #       ds: specific dataset information                                
-#       dataset_name: dataset name. It is used to save files.           
+#       parameters$Dataset.Name: dataset name. It is used to save files.           
 #   Return                                                              
 #       Sum, mean, median, standart deviation, max and min partitions   
 ########################################################################
-asd <- function(ds,
-                namesLabels,
-                dataset_name,
-                number_dataset, 
-                number_cores, 
-                number_folds, 
-                folderResults){
+asd <- function(parameters){
   
-  diretorios = directories(dataset_name, folderResults)
+  # diretorios <- directories(parameters$Dataset.Name, 
+  #                           parameters$Folder.Results,
+  #                           parameters$Similarity)
   
   # function return 
   retorno = list()
   library("dplyr")
 
   # get the best partitions of the dataset
-  nome = paste(diretorios$folderOutputDataset, "/", 
-        dataset_name, "-Best-Silhouete.csv", sep="")
+  nome = paste(parameters$Folders$folderOutputDataset, "/", 
+        parameters$Dataset.Name, "-Best-Silhouete.csv", sep="")
   bP = data.frame(read.csv(nome))
   
   frequencia = data.frame(count(bP, vars = part))
   names(frequencia) = c("partition","frequency")
   
-  setwd(diretorios$folderOutputDataset)
-  write.csv(frequencia, paste(dataset_name, "-frequency-chosed-groups.csv", 
+  setwd(parameters$Folders$folderOutputDataset)
+  write.csv(frequencia, paste(parameters$Dataset.Name,
+                              "-frequency-chosed-groups.csv", 
                               sep=""), row.names = FALSE)
   
   # computes statistics
@@ -76,8 +73,8 @@ asd <- function(ds,
   sumario = rbind(soma, media, mediana, desvioPadrao, minimo, maximo)
   
   # saves results in the RESULTS folder
-  setwd(diretorios$folderOutputDataset)
-  write.csv(sumario, paste(dataset_name, "-statistic-sumary-best-part.csv", 
+  setwd(parameters$Folders$folderOutputDataset)
+  write.csv(sumario, paste(parameters$Dataset.Name, "-statistic-sumary-best-part.csv", 
                            sep=""))
   
   # function return
@@ -92,82 +89,11 @@ asd <- function(ds,
 }
 
 
-#######################################################################
-# FUNCTION LABEL SPACE                                               
-#   Objective                                                        
-#       Separates the label space from the rest of the data to be used
-#     as input for calculating correlations
-#   Parameters                             
-#       ds: specific dataset information   
-#       dataset_name: dataset name. It is used to save files.
-#       number_folds: number of folds created                
-#       folderResults: folder where to save results          
-#   Return:                                                  
-#       Training set labels space                            
-#############################################################
-labelSpace <- function(ds, dataset_name, number_folds, folderResults){
-  
-  retorno = list()
-  
-  # return all fold label space
-  classes = list()
-  
-  # get the directories
-  diretorios = directories(dataset_name, folderResults)
-  
-  # from the first FOLD to the last
-  k = 1
-  while(k<=number_folds){
-    
-    # cat("\n\tFold: ", k)
-    
-    # enter folder train
-    setwd(diretorios$folderCVTR)
-    
-    # get the correct fold cross-validation
-    nome_arquivo = paste(dataset_name, "-Split-Tr-", k, ".csv", sep="")
-    
-    # open the file
-    arquivo = data.frame(read.csv(nome_arquivo))
-    
-    # split label space from input space
-    classes[[k]] = arquivo[,ds$LabelStart:ds$LabelEnd]
-    
-    # get the names labels
-    namesLabels = c(colnames(classes[[k]]))
-    
-    # increment FOLD
-    k = k + 1
-    
-    # garbage collection
-    gc()
-    
-  } # End While of the 10-folds
-  
-  # return results
-  retorno$NamesLabels = namesLabels
-  retorno$Classes = classes
-  return(retorno)
-  
-  gc()
-  cat("\n################################################################")
-  cat("\n# FUNCTION LABEL SPACE: END                                    #")
-  cat("\n################################################################")
-  cat("\n\n\n\n")
-}
-
 
 ###########################################################################
 #
 ###########################################################################
-bestPartitions <- function(ds,
-                           resLS,
-                           namesLabels,
-                           dataset_name,
-                           number_dataset,
-                           number_cores,
-                           number_folds,
-                           folderResults){
+bestPartitions <- function(parameters){
   
   #######################################################################
   #cat("\nworkspace")
@@ -180,7 +106,9 @@ bestPartitions <- function(ds,
   setwd(FolderScripts)
   source("utils.R")
   
-  diretorios <- directories(dataset_name, folderResults)
+  # diretorios <- directories(parameters$Dataset.Name, 
+  #                           parameters$Folder.Results,
+  #                           parameters$Similarity)
   
   todos = data.frame()
   best.part = data.frame()
@@ -194,10 +122,10 @@ bestPartitions <- function(ds,
     
     ##################################################################
     #cat("\nfolders split")
-    FolderSplitOrigem = paste(diretorios$folderValidate, "/Split-", f, sep="")
-    FolderSplitDestino = paste(diretorios$folderOutputDataset, 
+    FolderSplitOrigem = paste(parameters$Folders$folderValidate, "/Split-", f, sep="")
+    FolderSplitDestino = paste(parameters$Folders$folderOutputDataset, 
                                "/Split-", f, sep="")
-    FolderPSO = paste(diretorios$folderPartitions, "/", dataset_name, 
+    FolderPSO = paste(parameters$Folders$olderPartitions, "/", parameters$Dataset.Name, 
                       "/Split-", f, sep="")
     
     ##################################################################
@@ -216,12 +144,12 @@ bestPartitions <- function(ds,
     best.part2 = best.part[f,]
     
     ##################################################################
-    FolderP = paste(diretorios$folderPartitions, "/", dataset_name, 
+    FolderP = paste(diretorios$folderPartitions, "/", parameters$Dataset.Name, 
           "/Split-", f, sep="")
     
     FolderPP = paste(FolderP, "/Partition-", as.numeric(best.part2$part), sep="")
     
-    FolderD = paste(diretorios$folderOutputDataset,
+    FolderD = paste(parameters$Folders$folderOutputDataset,
                     "/Split-", f, sep="")
     if(dir.exists(FolderD)==FALSE){dir.create(FolderD)}
     
@@ -236,11 +164,11 @@ bestPartitions <- function(ds,
     
   }
   
-  setwd(diretorios$folderOutputDataset)
-  write.csv(todos, paste(dataset_name, "-All-Silhouete.csv", sep=""),
+  setwd(parameters$Folders$folderOutputDataset)
+  write.csv(todos, paste(parameters$Dataset.Name, "-All-Silhouete.csv", sep=""),
             row.names = FALSE)
   
-  write.csv(best.part, paste(dataset_name, "-Best-Silhouete.csv", sep=""),
+  write.csv(best.part, paste(parameters$Dataset.Name, "-Best-Silhouete.csv", sep=""),
             row.names = FALSE)
   
 }
@@ -250,14 +178,7 @@ bestPartitions <- function(ds,
 ###########################################################################
 #
 ###########################################################################
-validate <- function (ds,
-                      resLS,
-                      namesLabels,
-                      dataset_name,
-                      number_dataset,
-                      number_cores,
-                      number_folds,
-                      folderResults){
+validate <- function (parameters){
   
   
   f = 1
@@ -279,12 +200,14 @@ validate <- function (ds,
     setwd(FolderScripts)
     source("utils.R")
     
-    diretorios <- directories(dataset_name, folderResults)
+    # diretorios <- directories(parameters$Dataset.Name, 
+    #                           parameters$Folder.Results,
+    #                           parameters$Similarity)
     
     
     ########################################################################
     #cat("\nget the space label")
-    espacoDeRotulos = data.frame(resLS$Classes[f])
+    espacoDeRotulos = data.frame(parameters$resLS$Classes[f])
     espacoDeRotulos = data.frame(t(espacoDeRotulos))
     labels = rownames(espacoDeRotulos)
     espacoDeRotulos = cbind(labels, espacoDeRotulos)
@@ -294,9 +217,9 @@ validate <- function (ds,
     
     ##################################################################
     #cat("\nfolders split")
-    FolderSplitOrigem = paste(diretorios$folderPartitions, "/", 
-                              dataset_name, "/Split-", f, sep="")
-    FolderSplitDestino = paste(diretorios$folderValidate, 
+    FolderSplitOrigem = paste(parameters$Folders$folderPartitions, "/", 
+                              parameters$Dataset.Name, "/Split-", f, sep="")
+    FolderSplitDestino = paste(parameters$Folders$folderValidate, 
                                "/Split-", f, sep="")
     if(dir.exists(FolderSplitDestino)==FALSE){dir.create(FolderSplitDestino)}
     
