@@ -1,9 +1,0 @@
-Config, Value
-Dataset_Path, ~/Best-Partition-Silhouette/Datasets
-Temporary_Path, /dev/shm/r2s-GpositiveGO
-Partitions_Path, ~/Best-Partition-Silhouette/Partitons/HCAA/random2
-similarity, random2
-dataset_name, GpositiveGO
-number_dataset, 42
-number_folds, 10
-number_cores, 1
