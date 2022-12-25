@@ -214,7 +214,7 @@ while(s<=length(similarity)){
 
 
       write("echo RUNNING", file = output.file, append = TRUE)
-      str7 = paste("Rscript /home/u704616/Best-Partition-Silhouette/R/silhouette.R \"",
+      str7 = paste("Rscript /home/u704616/Best-Partition-Silhouette/R/best.R \"",
                    config_name, "\"", sep = "")
       write(str7, file = output.file, append = TRUE)
       write(" ", file = output.file, append = TRUE)
