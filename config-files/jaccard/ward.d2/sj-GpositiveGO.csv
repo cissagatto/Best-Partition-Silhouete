@@ -1,0 +1,10 @@
+Config, Value
+Dataset_Path, ~/Best-Partition-Silhouette/Datasets
+Temporary_Path, /dev/shm/sj-GpositiveGO
+Dendrogram, ward.d2
+Partitions_Path, ~/Best-Partition-Silhouette/Partitions/jaccard/ward.d2
+similarity, jaccard
+dataset_name, GpositiveGO
+number_dataset, 41
+number_folds, 1
+number_cores, 1

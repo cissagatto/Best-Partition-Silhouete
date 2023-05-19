@@ -12,7 +12,7 @@ This code source is composed of the project R to be used in RStudio IDE and also
 2. utils.R
 3. validation.R
 5. run.R
-6. silhouete.R
+6. best.R
 7. config-files.R
 
 
@@ -89,6 +89,8 @@ To run this code you will need a configuration file saved in *csv* format and wi
 |-----------------|---------------------------------------------------------------------------| 
 | Dataset_Path    | Absolute path to the folder where the dataset's tar.gz is stored          |
 | Temporary_Path  | Absolute path to the folder where temporary processing will be performed* |
+| Dendrogram      | linkage metric used to built the dendrogram. Must be one of the folow:    | 
+|                 | "complete", "average" , "single", "mcquitty", "ward.d" or "ward.d2"       |
 | Partitions_Path | Absolute path to the folder where partitions are store                    |
 | similarity      | Choose which one to run: jaccard, rogers, random1 and random2             |
 | dataset_name    | Dataset name according to *datasets-original.csv* file                    |
@@ -97,8 +99,6 @@ To run this code you will need a configuration file saved in *csv* format and wi
 | number_cores    | Number of cores for parallel processing                                   |
 
 * Use folders like */dev/shm*, *tmp* or *scratch* here.
-
-
 
 You can save configuration files wherever you want. The absolute path will be passed as a command line argument.
 
@@ -132,13 +132,13 @@ The results stored in the folder _OUTPUT_ it will be used in the next phase: Tes
 To run the code, open the terminal, enter the *~/Best-Partition-Silhouette/R* folder, and type
 
 ```
-Rscript silhouette.R [absolute_path_to_config_file]
+Rscript best.R [absolute_path_to_config_file]
 ```
 
 Example:
 
 ```
-Rscript silhouette.R "~/Best-Partition-Silhouette/bps-ecc-Config-Files/jaccard/js-GpositiveGO.csv"
+Rscript best.R "~/Best-Partition-Silhouette/config-files/jaccard/ward.d2/sj-GpositiveGO.csv"
 ```
 
 ## DOWNLOAD RESULTS
