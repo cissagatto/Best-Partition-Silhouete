@@ -13,7 +13,7 @@ This code source is composed of the project R to be used in RStudio IDE and also
 3. validation.R
 5. run.R
 6. silhouete.R
-7. bps_config_files.R
+7. config-files.R
 
 
 ## Preparing your experiment
@@ -98,13 +98,10 @@ To run this code you will need a configuration file saved in *csv* format and wi
 
 * Use folders like */dev/shm*, *tmp* or *scratch* here.
 
-*Example:*
-<img src="" width="300">
+
 
 You can save configuration files wherever you want. The absolute path will be passed as a command line argument.
 
-## Folder Strucutre
-<img src="" width="300">
 
 ## Software Requirements
 This code was develop in RStudio Version 1.4.1106 © 2009-2021 RStudio, PBC "Tiger Daylily" (2389bc24, 2021-02-11) for Ubuntu Bionic Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36. The R Language version was: R version 4.1.0 (2021-05-18) -- "Camp Pontanezen" Copyright (C) 2021 The R Foundation for Statistical Computing Platform: x86_64-pc-linux-gnu (64-bit).
@@ -135,13 +132,13 @@ The results stored in the folder _OUTPUT_ it will be used in the next phase: Tes
 To run the code, open the terminal, enter the *~/Best-Partition-Silhouette/R* folder, and type
 
 ```
-Rscript macrof1.R [absolute_path_to_config_file]
+Rscript silhouette.R [absolute_path_to_config_file]
 ```
 
 Example:
 
 ```
-Rscript macrof1.R "~/Best-Partition-Silhouette/bps-ecc-Config-Files/jaccard/js-GpositiveGO.csv"
+Rscript silhouette.R "~/Best-Partition-Silhouette/bps-ecc-Config-Files/jaccard/js-GpositiveGO.csv"
 ```
 
 ## DOWNLOAD RESULTS
